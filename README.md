@@ -2,7 +2,7 @@
 
 ## Descrição
 
-Este repositório contém uma API desenvolvida em ___Go___ que fornece informações sobre times de futebol ao redor do mundo e muitos jogadores que fazem parte desses times. A API utiliza o framework Echo para roteamento e um banco de dados ___MySQL___ hospedado no ___Amazon RDS___.
+Este repositório contém uma API desenvolvida em ___'Go'___ que fornece informações sobre times de futebol ao redor do mundo e muitos jogadores que fazem parte desses times. A API utiliza o framework Echo para roteamento e um banco de dados ___'MySQL'___ hospedado no ___'Amazon RDS'___.
 
 ## Rotas da API
 
