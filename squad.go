@@ -256,6 +256,7 @@ func getByIdTeam(c echo.Context) error {
 	return c.JSONBlob(http.StatusOK, teamJSON)
 }
 
+// Função que retorna os jogadores pelo ID do time
 func getByIdTeamPlayer(c echo.Context) error {
 	// Conecta ao banco de dados
 	db, err := connectDB()
@@ -267,7 +268,7 @@ func getByIdTeamPlayer(c echo.Context) error {
 	// Obtém o valor do parâmetro country da URL da rota
 	idteam := c.Param("idteam")
 
-	// Executa a consulta SQL que seleciona todos os times do país informado
+	// Executa a consulta SQL que seleciona todos os jogadores do time informado
 	rows, err := db.Query("SELECT * FROM Player WHERE idteam = ?", idteam)
 	if err != nil {
 		// Lida com o erro
@@ -279,7 +280,7 @@ func getByIdTeamPlayer(c echo.Context) error {
 	var players []Player
 
 	for rows.Next() {
-		// Cria uma variável do tipo Team para cada linha do resultado
+		// Cria uma variável do tipo Player para cada linha do resultado
 		var player Player
 
 		// Lê o resultado da consulta e preenche a estrutura do time com os dados obtidos
@@ -289,11 +290,11 @@ func getByIdTeamPlayer(c echo.Context) error {
 			return c.String(http.StatusInternalServerError, err.Error())
 		}
 
-		// Adiciona o time à slice de times
+		// Adiciona o jogador à slice de jogadores
 		players = append(players, player)
 	}
 
-	// Converte a slice de times em JSON
+	// Converte a slice de jogadores em JSON
 	playersJSON, err := json.Marshal(players)
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
@@ -303,6 +304,7 @@ func getByIdTeamPlayer(c echo.Context) error {
 	return c.JSONBlob(http.StatusOK, playersJSON)
 }
 
+// Função que retorna um time pelo país
 func getByCountryTeam(c echo.Context) error {
 	// Conecta ao banco de dados
 	db, err := connectDB()
@@ -350,6 +352,7 @@ func getByCountryTeam(c echo.Context) error {
 	return c.JSONBlob(http.StatusOK, teamsJSON)
 }
 
+// Função que retorna um time pelo seu nome
 func getByNameTeam(c echo.Context) error {
 	// Conecta ao banco de dados
 	db, err := connectDB()
@@ -376,6 +379,41 @@ func getByNameTeam(c echo.Context) error {
 
 	// Converte a estrutura do time em JSON
 	teamJSON, err := json.Marshal(team)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	// Envia a resposta em JSON
+	return c.JSONBlob(http.StatusOK, teamJSON)
+}
+
+// Função que retorna um time pelo seu nome
+func getByNamePlayer(c echo.Context) error {
+	// Conecta ao banco de dados
+	db, err := connectDB()
+
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	// Obtém o valor do parâmetro name da URL da rota
+	name := c.Param("name")
+
+	// Executa a consulta SQL que seleciona o player com o nome informado
+	row := db.QueryRow("SELECT * FROM Player WHERE name = ?", name)
+
+	// Cria uma variável do tipo player para armazenar os dados do time
+	var player Player
+
+	// Lê o resultado da consulta e preenche a estrutura do time com os dados obtidos
+	err = row.Scan(&player.ID, &player.Name, &player.City, &player.Country, &player.Age, &player.IdTeam)
+	if err != nil {
+		// Lida com o erro
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	// Converte a estrutura do time em JSON
+	teamJSON, err := json.Marshal(player)
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
