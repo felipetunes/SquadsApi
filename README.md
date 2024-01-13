@@ -1,4 +1,4 @@
-# Football World API
+# Squads API
 
 ## Descrição
 
