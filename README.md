@@ -1,10 +1,12 @@
 # Squads API
 
-![MySQL](https://img.shields.io/badge/mysql-%2300f.svg?style=for-the-badge&logo=mysql&logoColor=white)
-
 ## Descrição
 
 Este repositório contém uma API desenvolvida em ___'Go'___ que fornece informações sobre times de futebol ao redor do mundo e muitos jogadores que fazem parte desses times. A API utiliza o framework Echo para roteamento e um banco de dados ___'MySQL'___ hospedado no ___'Amazon RDS'___.
+
+![MySQL](https://img.shields.io/badge/mysql-%2300f.svg?style=for-the-badge&logo=mysql&logoColor=white)
+![GoLand](https://img.shields.io/badge/GoLand-0f0f0f?&style=for-the-badge&logo=goland&logoColor=white)
+![AWS](https://img.shields.io/badge/AWS-%23FF9900.svg?style=for-the-badge&logo=amazon-aws&logoColor=white)
 
 ## Rotas da API
 
