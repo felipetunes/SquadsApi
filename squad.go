@@ -21,7 +21,7 @@ type Team struct {
 // Função que conecta ao banco de dados
 func connectDB() (*sql.DB, error) {
 	// Abre a conexão com o banco de dados
-	db, err := sql.Open("mysql", "root:Tunes1313#@tcp(localhost:3306)/TeamDB")
+	db, err := sql.Open("mysql", "admin:Tunes1313#@tcp(teammate.cr2mw0ioqij3.us-east-1.rds.amazonaws.com:3306)/Teammate")
 	if err != nil {
 		return nil, err
 	}
@@ -37,7 +37,7 @@ func connectDB() (*sql.DB, error) {
 }
 
 // Função que retorna todos os times
-func getAll(c echo.Context) error {
+func getAllTeams(c echo.Context) error {
 	// Conecta ao banco de dados
 	db, err := connectDB()
 	if err != nil {
@@ -45,7 +45,7 @@ func getAll(c echo.Context) error {
 	}
 
 	// Executa a consulta SQL
-	rows, err := db.Query("SELECT * FROM team")
+	rows, err := db.Query("SELECT * FROM Team")
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
@@ -82,7 +82,7 @@ func getAll(c echo.Context) error {
 }
 
 // Função que insere um novo time
-func insert(c echo.Context) error {
+func insertTeam(c echo.Context) error {
 	// Conecta ao banco de dados
 	db, err := connectDB()
 	if err != nil {
@@ -95,7 +95,7 @@ func insert(c echo.Context) error {
 	country := c.QueryParam("country")
 
 	// Executa a consulta SQL
-	result, err := db.Exec("INSERT INTO team (name, city, country) VALUES (?, ?, ?)", name, city, country)
+	result, err := db.Exec("INSERT INTO Team (name, city, country) VALUES (?, ?, ?)", name, city, country)
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
@@ -111,7 +111,7 @@ func insert(c echo.Context) error {
 }
 
 // Função que atualiza um time existente
-func update(c echo.Context) error {
+func updateTeam(c echo.Context) error {
 	// Conecta ao banco de dados
 	db, err := connectDB()
 	if err != nil {
@@ -125,7 +125,7 @@ func update(c echo.Context) error {
 	country := c.QueryParam("country")
 
 	// Executa a consulta SQL
-	result, err := db.Exec("UPDATE team SET name = ?, city = ?, country = ? WHERE id = ?", name, city, country, id)
+	result, err := db.Exec("UPDATE Team SET name = ?, city = ?, country = ? WHERE id = ?", name, city, country, id)
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
@@ -141,7 +141,7 @@ func update(c echo.Context) error {
 }
 
 // Função que deleta um time existente
-func delete(c echo.Context) error {
+func deleteTeam(c echo.Context) error {
 	// Conecta ao banco de dados
 	db, err := connectDB()
 	if err != nil {
@@ -152,7 +152,7 @@ func delete(c echo.Context) error {
 	id := c.QueryParam("id")
 
 	// Executa a consulta SQL
-	result, err := db.Exec("DELETE FROM team WHERE id = ?", id)
+	result, err := db.Exec("DELETE FROM Team WHERE id = ?", id)
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
@@ -168,7 +168,7 @@ func delete(c echo.Context) error {
 }
 
 // Função que retorna um time pelo seu ID
-func getById(c echo.Context) error {
+func getByIdTeam(c echo.Context) error {
 	// Conecta ao banco de dados
 	db, err := connectDB()
 
@@ -179,10 +179,89 @@ func getById(c echo.Context) error {
 	// Obtém o valor do parâmetro id da URL da rota
 	id := c.Param("id")
 
-	fmt.Printf(id)
-
 	// Executa a consulta SQL que seleciona o time com o ID informado
-	row := db.QueryRow("SELECT * FROM team WHERE id = ?", id)
+	row := db.QueryRow("SELECT * FROM Team WHERE id = ?", id)
+
+	// Cria uma variável do tipo Team para armazenar os dados do time
+	var team Team
+
+	// Lê o resultado da consulta e preenche a estrutura do time com os dados obtidos
+	err = row.Scan(&team.ID, &team.Name, &team.City, &team.Country)
+	if err != nil {
+		// Lida com o erro
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	// Converte a estrutura do time em JSON
+	teamJSON, err := json.Marshal(team)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	// Envia a resposta em JSON
+	return c.JSONBlob(http.StatusOK, teamJSON)
+}
+
+func getByCountryTeam(c echo.Context) error {
+	// Conecta ao banco de dados
+	db, err := connectDB()
+
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	// Obtém o valor do parâmetro country da URL da rota
+	country := c.Param("country")
+
+	// Executa a consulta SQL que seleciona todos os times do país informado
+	rows, err := db.Query("SELECT * FROM Team WHERE country = ?", country)
+	if err != nil {
+		// Lida com o erro
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+	defer rows.Close()
+
+	// Cria uma slice de Team para armazenar os dados dos times
+	var teams []Team
+
+	for rows.Next() {
+		// Cria uma variável do tipo Team para cada linha do resultado
+		var team Team
+
+		// Lê o resultado da consulta e preenche a estrutura do time com os dados obtidos
+		err := rows.Scan(&team.ID, &team.Name, &team.City, &team.Country)
+		if err != nil {
+			// Lida com o erro
+			return c.String(http.StatusInternalServerError, err.Error())
+		}
+
+		// Adiciona o time à slice de times
+		teams = append(teams, team)
+	}
+
+	// Converte a slice de times em JSON
+	teamsJSON, err := json.Marshal(teams)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	// Envia a resposta em JSON
+	return c.JSONBlob(http.StatusOK, teamsJSON)
+}
+
+func getByNameTeam(c echo.Context) error {
+	// Conecta ao banco de dados
+	db, err := connectDB()
+
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	// Obtém o valor do parâmetro name da URL da rota
+	name := c.Param("name")
+
+	// Executa a consulta SQL que seleciona o time com o nome informado
+	row := db.QueryRow("SELECT * FROM Team WHERE name = ?", name)
 
 	// Cria uma variável do tipo Team para armazenar os dados do time
 	var team Team
@@ -209,11 +288,13 @@ func main() {
 	e := echo.New()
 
 	// Define as rotas da aplicação
-	e.GET("/getall", getAll)
-	e.GET("/insert", insert)
-	e.GET("/update", update)
-	e.GET("/delete", delete)
-	e.GET("/getbyid/:id", getById)
+	e.GET("team/getall", getAllTeams)
+	e.GET("team/insert", insertTeam)
+	e.GET("team/update", updateTeam)
+	e.GET("team/delete", deleteTeam)
+	e.GET("team/getbyid/:id", getByIdTeam)
+	e.GET("team/getbyname/:name", getByNameTeam)
+	e.GET("team/getbycountry/:country", getByCountryTeam)
 
 	// Inicia o servidor na porta 8080
 	e.Logger.Fatal(e.Start(":8080"))
