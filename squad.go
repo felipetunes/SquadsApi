@@ -256,6 +256,53 @@ func getByIdTeam(c echo.Context) error {
 	return c.JSONBlob(http.StatusOK, teamJSON)
 }
 
+func getByIdTeamPlayer(c echo.Context) error {
+	// Conecta ao banco de dados
+	db, err := connectDB()
+
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	// Obtém o valor do parâmetro country da URL da rota
+	idteam := c.Param("idteam")
+
+	// Executa a consulta SQL que seleciona todos os times do país informado
+	rows, err := db.Query("SELECT * FROM Player WHERE idteam = ?", idteam)
+	if err != nil {
+		// Lida com o erro
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+	defer rows.Close()
+
+	// Cria uma slice de Team para armazenar os dados dos times
+	var players []Player
+
+	for rows.Next() {
+		// Cria uma variável do tipo Team para cada linha do resultado
+		var player Player
+
+		// Lê o resultado da consulta e preenche a estrutura do time com os dados obtidos
+		err := rows.Scan(&player.ID, &player.Name, &player.City, &player.Country, &player.Age, &player.IdTeam)
+		if err != nil {
+			// Lida com o erro
+			return c.String(http.StatusInternalServerError, err.Error())
+		}
+
+		// Adiciona o time à slice de times
+		players = append(players, player)
+	}
+
+	// Converte a slice de times em JSON
+	playersJSON, err := json.Marshal(players)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	// Envia a resposta em JSON
+	return c.JSONBlob(http.StatusOK, playersJSON)
+}
+
 func getByCountryTeam(c echo.Context) error {
 	// Conecta ao banco de dados
 	db, err := connectDB()
@@ -350,6 +397,7 @@ func main() {
 	e.GET("team/getbyname/:name", getByNameTeam)
 	e.GET("team/getbycountry/:country", getByCountryTeam)
 	e.GET("player/getall", getAllPlayers)
+	e.GET("player/getbyidteam/:idteam", getByIdTeamPlayer)
 
 	// Inicia o servidor na porta 8080
 	e.Logger.Fatal(e.Start(":8080"))
