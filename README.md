@@ -42,5 +42,6 @@ Para instalar e configurar esta API localmente, siga estas etapas:
 Contribuições são bem-vindas! Sinta-se à vontade para abrir uma issue ou enviar um pull request.
 
 ## Licença
+https://github.com/Ileriayo/markdown-badges/blob/master/LICENSE
 
 Este projeto está licenciado sob os termos da licença MIT.
