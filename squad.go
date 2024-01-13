@@ -18,6 +18,16 @@ type Team struct {
 	Country string `json:"country"`
 }
 
+// Estrutura que representa um jogador
+type Player struct {
+	ID      int    `json:"id"`
+	Name    string `json:"name"`
+	City    string `json:"city"`
+	Country string `json:"country"`
+	Age     int    `json:"age"`
+	IdTeam  int    `json:"idteam"`
+}
+
 // Função que conecta ao banco de dados
 func connectDB() (*sql.DB, error) {
 	// Abre a conexão com o banco de dados
@@ -67,7 +77,6 @@ func getAllTeams(c echo.Context) error {
 		// Adiciona o time ao slice de times
 		teams = append(teams, team)
 	}
-
 	// Fecha o conjunto de resultados
 	rows.Close()
 
@@ -79,6 +88,51 @@ func getAllTeams(c echo.Context) error {
 
 	// Envia a resposta em JSON
 	return c.JSONBlob(http.StatusOK, teamsJSON)
+}
+
+// Função que retorna todos os times
+func getAllPlayers(c echo.Context) error {
+	// Conecta ao banco de dados
+	db, err := connectDB()
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	// Executa a consulta SQL
+	rows, err := db.Query("SELECT * FROM Player")
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	// Cria um slice de times
+	players := []Player{}
+
+	// Lê os resultados
+	for rows.Next() {
+		// Cria um time vazio
+		player := Player{}
+
+		// Preenche o time com os dados da linha
+		err = rows.Scan(&player.ID, &player.Name, &player.City, &player.Country, &player.Age, &player.IdTeam)
+		if err != nil {
+			return c.String(http.StatusInternalServerError, err.Error())
+		}
+
+		// Adiciona o time ao slice de players
+		players = append(players, player)
+	}
+
+	// Fecha o conjunto de resultados
+	rows.Close()
+
+	// Converte os times em JSON
+	playersJSON, err := json.Marshal(players)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	// Envia a resposta em JSON
+	return c.JSONBlob(http.StatusOK, playersJSON)
 }
 
 // Função que insere um novo time
@@ -295,6 +349,7 @@ func main() {
 	e.GET("team/getbyid/:id", getByIdTeam)
 	e.GET("team/getbyname/:name", getByNameTeam)
 	e.GET("team/getbycountry/:country", getByCountryTeam)
+	e.GET("player/getall", getAllPlayers)
 
 	// Inicia o servidor na porta 8080
 	e.Logger.Fatal(e.Start(":8080"))
