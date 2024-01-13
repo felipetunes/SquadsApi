@@ -1,5 +1,7 @@
 # Squads API
 
+![MySQL](https://img.shields.io/badge/mysql-%2300f.svg?style=for-the-badge&logo=mysql&logoColor=white)
+
 ## Descrição
 
 Este repositório contém uma API desenvolvida em ___'Go'___ que fornece informações sobre times de futebol ao redor do mundo e muitos jogadores que fazem parte desses times. A API utiliza o framework Echo para roteamento e um banco de dados ___'MySQL'___ hospedado no ___'Amazon RDS'___.
@@ -42,6 +44,5 @@ Para instalar e configurar esta API localmente, siga estas etapas:
 Contribuições são bem-vindas! Sinta-se à vontade para abrir uma issue ou enviar um pull request.
 
 ## Licença
-https://github.com/Ileriayo/markdown-badges/blob/master/LICENSE
 
 Este projeto está licenciado sob os termos da licença MIT.
