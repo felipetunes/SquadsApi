@@ -7,7 +7,7 @@ phases:
     commands:
       - echo "Installing dependencies..."
       - go get ./...
-  pre_build: 
+  pre_build:
     commands:
       - echo "Running tests..."
       - go test ./...
