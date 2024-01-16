@@ -46,7 +46,7 @@ To install and configure this API locally, follow these steps:
 2. Install Go if it is not already installed.
 3. Install MySQL and configure an Amazon RDS instance.
 4. Update the database settings in your code to point to your Amazon RDS instance.
-5. Run the Go server.
+5. Run the Go server on port `8080`.
 
 ## Contributing
 
