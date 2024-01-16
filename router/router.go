@@ -119,4 +119,34 @@ func definePlayerRoutes(g *echo.Group) {
 	// @Success 200 {array} structs.Player
 	// @Router /api/v1/player/getbyidteam/{idteam} [get]
 	g.GET("/player/getbyidteam/:idteam", GetByIdTeamPlayer)
+	// @Summary Inserir um jogador
+	// @Description Inserir um jogador
+	// @Tags jogadores
+	// @Accept  json
+	// @Produce  json
+	// @Param name query string true "Player Name"
+	// @Param id team query string true "ID Team"
+	// @Param city query string true "City"
+	// @Param country query string true "Country"
+	// @Param age query string true "Age"
+	// @Success 200 {object} structs.Player
+	// @Router /api/v1/player/insert [post]
+	g.POST("/player/insert", InsertPlayer)
+	// @Summary Obter um jogador por ID
+	// @Description Obter um jogador por ID
+	// @Tags jogadores
+	// @Accept  json
+	// @Produce  json
+	// @Success 200 {object} structs.Player
+	// @Router /api/v1/player/getbyid/{id} [get]
+	g.GET("/player/getbyid/:id", GetByIdPlayer)
+	// @Summary Obter um jogador por país
+	// @Description Obter um jogador por país
+	// @Tags jogadores
+	// @Accept  json
+	// @Produce  json
+	// @Success 200 {object} structs.Player
+	// @Router /api/v1/player/getbycountry/{country} [get]
+	g.GET("/player/getbycountry/:country", GetByCountryPlayer)
+
 }

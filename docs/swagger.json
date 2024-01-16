@@ -30,6 +30,73 @@
                 }
             }
         },
+        "/api/v1/player/getbycountry/{country}": {
+            "get": {
+                "description": "Get players by country",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Players"
+                ],
+                "summary": "Get players by country",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Country Name",
+                        "name": "country",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/structs.Player"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/player/getbyid/{id}": {
+            "get": {
+                "description": "Get a player by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Players"
+                ],
+                "summary": "Get a player by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Player ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/structs.Player"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/player/getbyidteam/{idteam}": {
             "get": {
                 "description": "Get players by team ID",
@@ -84,6 +151,66 @@
                         "description": "Player Name",
                         "name": "name",
                         "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/structs.Player"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/player/insert": {
+            "post": {
+                "description": "Insert a player",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Players"
+                ],
+                "summary": "Insert a player",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Player Name",
+                        "name": "name",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Team ID",
+                        "name": "team",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "City",
+                        "name": "city",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Country",
+                        "name": "country",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Age",
+                        "name": "age",
+                        "in": "query",
                         "required": true
                     }
                 ],

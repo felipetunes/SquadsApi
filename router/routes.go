@@ -92,7 +92,7 @@ func GetAllPlayers(c echo.Context) error {
 		player := structs.Player{}
 
 		// Preenche o time com os dados da linha
-		err = rows.Scan(&player.ID, &player.Name, &player.City, &player.Country, &player.Age, &player.IdTeam)
+		err = rows.Scan(&player.Name, &player.City, &player.Country, &player.Age, &player.IdTeam, &player.ID)
 		if err != nil {
 			return c.String(http.StatusInternalServerError, err.Error())
 		}
@@ -256,6 +256,48 @@ func GetByIdTeam(c echo.Context) error {
 	return c.JSONBlob(http.StatusOK, teamJSON)
 }
 
+// GetByIdPlayer godoc
+// @Summary Get a player by ID
+// @Description Get a player by ID
+// @Tags Players
+// @Accept  json
+// @Produce  json
+// @Param id path string true "Player ID"
+// @Success 200 {object} structs.Player
+// @Router /api/v1/player/getbyid/{id} [get]
+func GetByIdPlayer(c echo.Context) error {
+	// Connect to the database
+	db, err := db.ConnectDB()
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	// Get the value of the id parameter from the route URL
+	id := c.Param("id")
+
+	// Execute the SQL query that selects the player with the informed ID
+	row := db.QueryRow("SELECT * FROM Player WHERE id = ?", id)
+
+	// Create a variable of type Player to store the player data
+	var player structs.Player
+
+	// Read the result of the query and fill the player structure with the obtained data
+	err = row.Scan(&player.Name, &player.City, &player.Country, &player.Age, &player.IdTeam, &player.ID)
+	if err != nil {
+		// Handle the error
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	// Convert the player structure into JSON
+	playerJSON, err := json.Marshal(player)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	// Send the response in JSON
+	return c.JSONBlob(http.StatusOK, playerJSON)
+}
+
 // GetByIdTeamPlayer godoc
 // @Summary Get players by team ID
 // @Description Get players by team ID
@@ -292,7 +334,7 @@ func GetByIdTeamPlayer(c echo.Context) error {
 		var player structs.Player
 
 		// Lê o resultado da consulta e preenche a estrutura do time com os dados obtidos
-		err := rows.Scan(&player.ID, &player.Name, &player.City, &player.Country, &player.Age, &player.IdTeam)
+		err := rows.Scan(&player.Name, &player.City, &player.Country, &player.Age, &player.IdTeam, &player.ID)
 		if err != nil {
 			// Lida com o erro
 			return c.String(http.StatusInternalServerError, err.Error())
@@ -368,6 +410,61 @@ func GetByCountryTeam(c echo.Context) error {
 	return c.JSONBlob(http.StatusOK, teamsJSON)
 }
 
+// GetByCountryPlayer godoc
+// @Summary Get players by country
+// @Description Get players by country
+// @Tags Players
+// @Accept  json
+// @Produce  json
+// @Param country path string true "Country Name"
+// @Success 200 {array} structs.Player
+// @Router /api/v1/player/getbycountry/{country} [get]
+func GetByCountryPlayer(c echo.Context) error {
+	// Connect to the database
+	db, err := db.ConnectDB()
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	// Get the value of the country parameter from the route URL
+	country := c.Param("country")
+
+	// Execute the SQL query that selects all players from the informed country
+	rows, err := db.Query("SELECT * FROM Player WHERE Country = ?", country)
+	if err != nil {
+		// Handle the error
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+	defer rows.Close()
+
+	// Create a slice of Player to store the player data
+	var players []structs.Player
+
+	for rows.Next() {
+		// Create a variable of type Player for each row of the result
+		var player structs.Player
+
+		// Read the result of the query and fill the player structure with the obtained data
+		err := rows.Scan(&player.Name, &player.City, &player.Country, &player.Age, &player.IdTeam, &player.ID)
+		if err != nil {
+			// Handle the error
+			return c.String(http.StatusInternalServerError, err.Error())
+		}
+
+		// Add the player to the slice of players
+		players = append(players, player)
+	}
+
+	// Convert the slice of players into JSON
+	playersJSON, err := json.Marshal(players)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	// Send the response in JSON
+	return c.JSONBlob(http.StatusOK, playersJSON)
+}
+
 // GetByNameTeam godoc
 // @Summary Get a team by name
 // @Description Get a team by name
@@ -438,7 +535,7 @@ func GetByNamePlayer(c echo.Context) error {
 	var player structs.Player
 
 	// Lê o resultado da consulta e preenche a estrutura do time com os dados obtidos
-	err = row.Scan(&player.ID, &player.Name, &player.City, &player.Country, &player.Age, &player.IdTeam)
+	err = row.Scan(&player.Name, &player.City, &player.Country, &player.Age, &player.IdTeam, &player.ID)
 	if err != nil {
 		// Lida com o erro
 		return c.String(http.StatusInternalServerError, err.Error())
@@ -452,4 +549,47 @@ func GetByNamePlayer(c echo.Context) error {
 
 	// Envia a resposta em JSON
 	return c.JSONBlob(http.StatusOK, teamJSON)
+}
+
+// InsertPlayer godoc
+// @Summary Insert a player
+// @Description Insert a player
+// @Tags Players
+// @Accept  json
+// @Produce  json
+// @Param name query string true "Player Name"
+// @Param team query string true "Team ID"
+// @Param city query string true "City"
+// @Param country query string true "Country"
+// @Param age query string true "Age"
+// @Success 200 {object} structs.Player
+// @Router /api/v1/player/insert [post]
+func InsertPlayer(c echo.Context) error {
+	// Connect to the database
+	db, err := db.ConnectDB()
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	// Get the player data from the URL
+	name := c.QueryParam("name")
+	idteam := c.QueryParam("team")
+	city := c.QueryParam("city")
+	country := c.QueryParam("country")
+	age := c.QueryParam("age")
+
+	// Execute the SQL query
+	result, err := db.Exec("INSERT INTO Player (Name, IdTeam, City, Country, Age) VALUES (?, ?, ?, ?, ?)", name, idteam, city, country, age)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	// Get the ID of the inserted player
+	id, err := result.LastInsertId()
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	// Send the response with the ID
+	return c.String(http.StatusOK, fmt.Sprintf("Player inserted with ID %d", id))
 }
