@@ -35,6 +35,17 @@ The API has the following routes:
 - `GET /api/v1/team/getbyname/:name`: Returns a team by its name.
 - `GET /api/v1/team/getbycountry/:country`: Returns all teams from a given country.
 
+## Player Routes
+
+- `GET /api/v1/player/getall`: Returns all players.
+- `POST /api/v1/player/insert`: Inserts a new player.
+- `PUT /api/v1/player/update`: Updates an existing player.
+- `DELETE /api/v1/player/delete`: Deletes a player.
+- `GET /api/v1/player/getbyid/:id`: Returns a player by its ID.
+- `GET /api/v1/player/getbyname/:name`: Returns a player by its name.
+- `GET /api/v1/player/getbycountry/:country`: Returns all players from a given country.
+
+
 To use this API, you can send an HTTP request to the desired route. For example, to get all teams, you can send a GET request to `/team/getall`.
 
 ## API documentation
