@@ -21,19 +21,19 @@ This repository contains an API developed in ___'Go'___ that provides informatio
 7. Contributing
 8. License
 
-## API Routes
+# API Routes
 
 The API has the following routes:
 
-Team Routes
-GET /api/v1/team/getall: Returns all teams.
-POST /api/v1/team/insert: Inserts a new team.
-PUT /api/v1/team/update: Updates an existing team.
-DELETE /api/v1/team/delete: Deletes a team.
-GET /api/v1/team/getbyid/:id: Returns a team by its ID.
-GET /api/v1/team/getbyname/:name: Returns a team by its name.
-GET /api/v1/team/getbycountry/:country: Returns all teams from a given country.
-## Como usar
+## Team Routes
+
+- `GET /api/v1/team/getall`: Returns all teams.
+- `POST /api/v1/team/insert`: Inserts a new team.
+- `PUT /api/v1/team/update`: Updates an existing team.
+- `DELETE /api/v1/team/delete`: Deletes a team.
+- `GET /api/v1/team/getbyid/:id`: Returns a team by its ID.
+- `GET /api/v1/team/getbyname/:name`: Returns a team by its name.
+- `GET /api/v1/team/getbycountry/:country`: Returns all teams from a given country.
 
 To use this API, you can send an HTTP request to the desired route. For example, to get all teams, you can send a GET request to `/team/getall`.
 
