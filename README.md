@@ -29,7 +29,7 @@ GET /api/v1/player/getbyidteam/:idteam: Retorna todos os jogadores de um determi
 
 Para usar esta API, você pode enviar uma solicitação HTTP para a rota desejada. Por exemplo, para obter todos os times, você pode enviar uma solicitação GET para `/team/getall`.
 
-Documentação da API
+## Documentação da API
 Esta API utiliza o Swagger para gerar automaticamente a documentação da API com o padrão OpenAPI 2.0. Você pode acessar a documentação da API pelo caminho /swagger/index.html no seu navegador. A documentação da API contém informações sobre as rotas, os parâmetros, os tipos de retorno e os exemplos de solicitação e resposta.
 
 ## Instalação e Configuração
