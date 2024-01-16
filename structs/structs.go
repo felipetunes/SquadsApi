@@ -1,10 +1,13 @@
 package structs
 
 import (
+	"database/sql"
+	"time"
+
 	_ "github.com/go-sql-driver/mysql"
 )
 
-// Estrutura que representa um time
+// Structure that represents a team
 type Team struct {
 	ID      int    `json:"id"`
 	Name    string `json:"name"`
@@ -12,12 +15,13 @@ type Team struct {
 	Country string `json:"country"`
 }
 
-// Estrutura que representa um jogador
+// Structure that represents a player
 type Player struct {
-	ID      int    `json:"id"`
-	Name    string `json:"name"`
-	City    string `json:"city"`
-	Country string `json:"country"`
-	Age     int    `json:"age"`
-	IdTeam  int    `json:"idteam"`
+	ID      int            `json:"id"`
+	Name    string         `json:"name"`
+	City    string         `json:"city"`
+	Country string         `json:"country"`
+	Birth   time.Time      `json:"birth"`
+	IdTeam  int            `json:"idteam"`
+	Height  sql.NullString `json:"height"`
 }

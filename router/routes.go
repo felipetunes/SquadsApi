@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/labstack/echo/v4"
@@ -92,9 +93,20 @@ func GetAllPlayers(c echo.Context) error {
 		player := structs.Player{}
 
 		// Preenche o time com os dados da linha
-		err = rows.Scan(&player.Name, &player.City, &player.Country, &player.Age, &player.IdTeam, &player.ID)
+		var birthStr string
+		err = rows.Scan(&player.Name, &player.City, &player.Country, &birthStr, &player.IdTeam, &player.ID, &player.Height)
 		if err != nil {
 			return c.String(http.StatusInternalServerError, err.Error())
+		}
+		if birthStr != "0000-00-00" {
+			player.Birth, err = time.Parse("2006-01-02", birthStr)
+			if err != nil {
+				// Handle the error
+				return c.String(http.StatusInternalServerError, err.Error())
+			}
+		} else {
+			// Handle '0000-00-00' birth date here
+			// For example, you can leave player.Birth as zero value (which is '0001-01-01 00:00:00 +0000 UTC' for time.Time)
 		}
 
 		// Adiciona o time ao slice de players
@@ -282,10 +294,21 @@ func GetByIdPlayer(c echo.Context) error {
 	var player structs.Player
 
 	// Read the result of the query and fill the player structure with the obtained data
-	err = row.Scan(&player.Name, &player.City, &player.Country, &player.Age, &player.IdTeam, &player.ID)
+	var birthStr string
+	err = row.Scan(&player.Name, &player.City, &player.Country, &birthStr, &player.IdTeam, &player.ID, &player.Height)
 	if err != nil {
 		// Handle the error
 		return c.String(http.StatusInternalServerError, err.Error())
+	}
+	if birthStr != "0000-00-00" {
+		player.Birth, err = time.Parse("2006-01-02", birthStr)
+		if err != nil {
+			// Handle the error
+			return c.String(http.StatusInternalServerError, err.Error())
+		}
+	} else {
+		// Handle '0000-00-00' birth date here
+		// For example, you can leave player.Birth as zero value (which is '0001-01-01 00:00:00 +0000 UTC' for time.Time)
 	}
 
 	// Convert the player structure into JSON
@@ -334,10 +357,21 @@ func GetByIdTeamPlayer(c echo.Context) error {
 		var player structs.Player
 
 		// Lê o resultado da consulta e preenche a estrutura do time com os dados obtidos
-		err := rows.Scan(&player.Name, &player.City, &player.Country, &player.Age, &player.IdTeam, &player.ID)
+		var birthStr string
+		err := rows.Scan(&player.Name, &player.City, &player.Country, &birthStr, &player.IdTeam, &player.ID, &player.Height)
 		if err != nil {
 			// Lida com o erro
 			return c.String(http.StatusInternalServerError, err.Error())
+		}
+		if birthStr != "0000-00-00" {
+			player.Birth, err = time.Parse("2006-01-02", birthStr)
+			if err != nil {
+				// Handle the error
+				return c.String(http.StatusInternalServerError, err.Error())
+			}
+		} else {
+			// Handle '0000-00-00' birth date here
+			// For example, you can leave player.Birth as zero value (which is '0001-01-01 00:00:00 +0000 UTC' for time.Time)
 		}
 
 		// Adiciona o jogador à slice de jogadores
@@ -445,10 +479,21 @@ func GetByCountryPlayer(c echo.Context) error {
 		var player structs.Player
 
 		// Read the result of the query and fill the player structure with the obtained data
-		err := rows.Scan(&player.Name, &player.City, &player.Country, &player.Age, &player.IdTeam, &player.ID)
+		var birthStr string
+		err := rows.Scan(&player.Name, &player.City, &player.Country, &birthStr, &player.IdTeam, &player.ID, &player.Height)
 		if err != nil {
 			// Handle the error
 			return c.String(http.StatusInternalServerError, err.Error())
+		}
+		if birthStr != "0000-00-00" {
+			player.Birth, err = time.Parse("2006-01-02", birthStr)
+			if err != nil {
+				// Handle the error
+				return c.String(http.StatusInternalServerError, err.Error())
+			}
+		} else {
+			// Handle '0000-00-00' birth date here
+			// For example, you can leave player.Birth as zero value (which is '0001-01-01 00:00:00 +0000 UTC' for time.Time)
 		}
 
 		// Add the player to the slice of players
@@ -535,10 +580,21 @@ func GetByNamePlayer(c echo.Context) error {
 	var player structs.Player
 
 	// Lê o resultado da consulta e preenche a estrutura do time com os dados obtidos
-	err = row.Scan(&player.Name, &player.City, &player.Country, &player.Age, &player.IdTeam, &player.ID)
+	var birthStr string
+	err = row.Scan(&player.Name, &player.City, &player.Country, &birthStr, &player.IdTeam, &player.ID, &player.Height)
 	if err != nil {
 		// Lida com o erro
 		return c.String(http.StatusInternalServerError, err.Error())
+	}
+	if birthStr != "0000-00-00" {
+		player.Birth, err = time.Parse("2006-01-02", birthStr)
+		if err != nil {
+			// Handle the error
+			return c.String(http.StatusInternalServerError, err.Error())
+		}
+	} else {
+		// Handle '0000-00-00' birth date here
+		// For example, you can leave player.Birth as zero value (which is '0001-01-01 00:00:00 +0000 UTC' for time.Time)
 	}
 
 	// Converte a estrutura do time em JSON
@@ -561,7 +617,7 @@ func GetByNamePlayer(c echo.Context) error {
 // @Param team query string true "Team ID"
 // @Param city query string true "City"
 // @Param country query string true "Country"
-// @Param age query string true "Age"
+// @Param birth query string true "Birth"
 // @Success 200 {object} structs.Player
 // @Router /api/v1/player/insert [post]
 func InsertPlayer(c echo.Context) error {
@@ -576,10 +632,10 @@ func InsertPlayer(c echo.Context) error {
 	idteam := c.QueryParam("team")
 	city := c.QueryParam("city")
 	country := c.QueryParam("country")
-	age := c.QueryParam("age")
+	birth := c.QueryParam("birth")
 
 	// Execute the SQL query
-	result, err := db.Exec("INSERT INTO Player (Name, IdTeam, City, Country, Age) VALUES (?, ?, ?, ?, ?)", name, idteam, city, country, age)
+	result, err := db.Exec("INSERT INTO Player (Name, IdTeam, City, Country, Birth) VALUES (?, ?, ?, ?, ?)", name, idteam, city, country, birth)
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}

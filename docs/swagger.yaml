@@ -1,8 +1,8 @@
 definitions:
   structs.Player:
     properties:
-      age:
-        type: integer
+      birth:
+        type: string
       city:
         type: string
       country:
@@ -159,9 +159,9 @@ paths:
         name: country
         required: true
         type: string
-      - description: Age
+      - description: Birth
         in: query
-        name: age
+        name: birth
         required: true
         type: string
       produces:

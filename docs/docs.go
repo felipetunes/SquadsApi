@@ -219,8 +219,8 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "Age",
-                        "name": "age",
+                        "description": "Birth",
+                        "name": "birth",
                         "in": "query",
                         "required": true
                     }
@@ -411,8 +411,8 @@ const docTemplate = `{
         "structs.Player": {
             "type": "object",
             "properties": {
-                "age": {
-                    "type": "integer"
+                "birth": {
+                    "type": "string"
                 },
                 "city": {
                     "type": "string"
