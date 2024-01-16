@@ -38,7 +38,7 @@ The API has the following routes:
 To use this API, you can send an HTTP request to the desired route. For example, to get all teams, you can send a GET request to `/team/getall`.
 
 ## API documentation
-This API uses Swagger to automatically generate API documentation with the OpenAPI 2.0 standard. You can access the API documentation via /swagger/index.html in your browser. The API documentation contains information about routes, parameters, return types, and request and response examples.
+This API uses __Swagger__ to automatically generate API documentation with the OpenAPI 2.0 standard. You can access the API documentation via `/swagger/index.html` in your browser. The API documentation contains information about routes, parameters, return types, and request and response examples.
 
 ## Installation and Configuration
 To install and configure this API locally, follow these steps:
