@@ -47,7 +47,7 @@ To use this API, you can send an HTTP request to the desired route. For example,
 - `GET /api/v1/player/getbyname/:name`: Returns a player by its name.
 - `GET /api/v1/player/getbycountry/:country`: Returns all players from a given country.
 
-To use this API, you can send an HTTP request to the desired route. For example, to get all teams, you can send a GET request to `/player/getall`.
+To use this API, you can send an HTTP request to the desired route. For example, to get all players, you can send a GET request to `/player/getall`.
 
 ## API documentation
 This API uses __Swagger__ to automatically generate API documentation with the OpenAPI 2.0 standard. You can access the API documentation via `/swagger/index.html` in your browser. The API documentation contains information about routes, parameters, return types, and request and response examples.
