@@ -1,3 +1,4 @@
+basePath: /api/v1
 definitions:
   structs.Player:
     properties:
@@ -27,8 +28,13 @@ definitions:
       name:
         type: string
     type: object
+host: localhost:8080
 info:
   contact: {}
+  description: Essa API permite que os usuários gerenciem times e jogadores de futebol.
+    Os usuários podem inserir novos times e jogadores, atualizar informações existentes
+    e consultar detalhes.
+  title: Squads API
 paths:
   /api/v1/player/getall:
     get:
@@ -381,4 +387,6 @@ paths:
       summary: Update a team
       tags:
       - Teams
+schemes:
+- http
 swagger: "2.0"

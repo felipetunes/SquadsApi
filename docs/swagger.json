@@ -1,8 +1,15 @@
 {
+    "schemes": [
+        "http"
+    ],
     "swagger": "2.0",
     "info": {
+        "description": "Essa API permite que os usuários gerenciem times e jogadores de futebol. Os usuários podem inserir novos times e jogadores, atualizar informações existentes e consultar detalhes.",
+        "title": "Squads API",
         "contact": {}
     },
+    "host": "localhost:8080",
+    "basePath": "/api/v1",
     "paths": {
         "/api/v1/player/getall": {
             "get": {

@@ -6,11 +6,6 @@ import (
 	echoSwagger "github.com/swaggo/echo-swagger"
 )
 
-// @title API de Times e Jogadores
-// @description Esta é uma API simples para gerenciar times e jogadores.
-// @schemes http
-// @host localhost:8080
-// @BasePath /api/v1
 func Initialize() {
 	// Cria uma nova instância do Echo
 	e := echo.New()
@@ -99,6 +94,11 @@ func defineTeamRoutes(g *echo.Group) {
 	g.GET("/team/getbycountry/:country", GetByCountryTeam)
 }
 
+// @title API de Times e Jogadores
+// @description Esta é uma API simples para gerenciar times e jogadores.
+// @schemes http
+// @host localhost:8080
+// @BasePath /api/v1
 func definePlayerRoutes(g *echo.Group) {
 	// @Summary Obter todos os jogadores
 	// @Description Obter todos os jogadores

@@ -7,6 +7,11 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
+// @title Squads API
+// @description Essa API permite que os usuários gerenciem times e jogadores de futebol. Os usuários podem inserir novos times e jogadores, atualizar informações existentes e consultar detalhes.
+// @schemes http
+// @host localhost:8080
+// @BasePath /api/v1
 func main() {
 	router.Initialize()
 }
