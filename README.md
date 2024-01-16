@@ -42,11 +42,11 @@ This API uses __Swagger__ to automatically generate API documentation with the O
 
 ## Installation and Configuration
 To install and configure this API locally, follow these steps:
-1. Clone este repositório para o seu ambiente local.
-2. Instale Go, se ainda não estiver instalado.
-3. Instale o MySQL e configure uma instância do Amazon RDS.
-4. Atualize as configurações do banco de dados no código para apontar para a sua instância do Amazon RDS.
-5. Execute o servidor Go.
+1. Clone this repository to your local environment.
+2. Install Go if it is not already installed.
+3. Install MySQL and configure an Amazon RDS instance.
+4. Update the database settings in your code to point to your Amazon RDS instance.
+5. Run the Go server.
 
 ## Contributing
 
