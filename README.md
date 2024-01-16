@@ -45,7 +45,7 @@ Para usar esta API, você pode enviar uma solicitação HTTP para a rota desejad
 ## Documentação da API
 Esta API utiliza o Swagger para gerar automaticamente a documentação da API com o padrão OpenAPI 2.0. Você pode acessar a documentação da API pelo caminho /swagger/index.html no seu navegador. A documentação da API contém informações sobre as rotas, os parâmetros, os tipos de retorno e os exemplos de solicitação e resposta.
 
-## Instalação e Configuração  [!IMPORTANT]
+## Instalação e Configuração 
 Para instalar e configurar esta API localmente, siga estas etapas:
 
 1. Clone este repositório para o seu ambiente local.
