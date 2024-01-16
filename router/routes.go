@@ -42,7 +42,7 @@ func GetAllTeams(c echo.Context) error {
 		team := structs.Team{}
 
 		// Preenche o time com os dados da linha
-		err = rows.Scan(&team.ID, &team.Name, &team.City, &team.Country)
+		err = rows.Scan(&team.Name, &team.City, &team.Country, &team.ID)
 		if err != nil {
 			return c.String(http.StatusInternalServerError, err.Error())
 		}
@@ -79,20 +79,20 @@ func GetAllPlayers(c echo.Context) error {
 	}
 
 	// Executa a consulta SQL
-	rows, err := db.Query("SELECT * FROM Player")
+	rows, err := db.Query("SELECT Name, City, Country, Birth, IdTeam, ID, COALESCE(Height, '0,00') as Height FROM Player")
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
 
-	// Cria um slice de times
+	// Cria um slice de jogadores
 	players := []structs.Player{}
 
 	// Lê os resultados
 	for rows.Next() {
-		// Cria um time vazio
+		// Cria um jogador vazio
 		player := structs.Player{}
 
-		// Preenche o time com os dados da linha
+		// Preenche o jogador com os dados da linha
 		var birthStr string
 		err = rows.Scan(&player.Name, &player.City, &player.Country, &birthStr, &player.IdTeam, &player.ID, &player.Height)
 		if err != nil {
@@ -104,19 +104,16 @@ func GetAllPlayers(c echo.Context) error {
 				// Handle the error
 				return c.String(http.StatusInternalServerError, err.Error())
 			}
-		} else {
-			// Handle '0000-00-00' birth date here
-			// For example, you can leave player.Birth as zero value (which is '0001-01-01 00:00:00 +0000 UTC' for time.Time)
 		}
 
-		// Adiciona o time ao slice de players
+		// Adiciona o jogador ao slice de jogadores
 		players = append(players, player)
 	}
 
 	// Fecha o conjunto de resultados
 	rows.Close()
 
-	// Converte os times em JSON
+	// Converte os jogadores em JSON
 	playersJSON, err := json.Marshal(players)
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
@@ -132,6 +129,9 @@ func GetAllPlayers(c echo.Context) error {
 // @Tags Teams
 // @Accept  json
 // @Produce  json
+// @Param name query string true "Team Name"
+// @Param city query string true "City"
+// @Param country query string true "Country"
 // @Success 200 {object} structs.Team
 // @Router /api/v1/team/insert [post]
 func InsertTeam(c echo.Context) error {
@@ -168,6 +168,10 @@ func InsertTeam(c echo.Context) error {
 // @Tags Teams
 // @Accept  json
 // @Produce  json
+// @Param id query int true "ID Team"
+// @Param name query string true "Team Name"
+// @Param city query string true "City"
+// @Param country query string true "Country"
 // @Success 200 {object} structs.Team
 // @Router /api/v1/team/update [put]
 func UpdateTeam(c echo.Context) error {
@@ -288,7 +292,7 @@ func GetByIdPlayer(c echo.Context) error {
 	id := c.Param("id")
 
 	// Execute the SQL query that selects the player with the informed ID
-	row := db.QueryRow("SELECT * FROM Player WHERE id = ?", id)
+	row := db.QueryRow("SELECT Name, City, Country, Birth, IdTeam, ID, COALESCE(Height, '0,00') as Height FROM Player WHERE ID = ?", id)
 
 	// Create a variable of type Player to store the player data
 	var player structs.Player
@@ -297,7 +301,6 @@ func GetByIdPlayer(c echo.Context) error {
 	var birthStr string
 	err = row.Scan(&player.Name, &player.City, &player.Country, &birthStr, &player.IdTeam, &player.ID, &player.Height)
 	if err != nil {
-		// Handle the error
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
 	if birthStr != "0000-00-00" {
@@ -327,58 +330,54 @@ func GetByIdPlayer(c echo.Context) error {
 // @Tags Players
 // @Accept  json
 // @Produce  json
-// @Param idteam path string true "Team ID"
+// @Param idteam path string true "IdTeam"
 // @Success 200 {array} structs.Player
 // @Router /api/v1/player/getbyidteam/{idteam} [get]
 func GetByIdTeamPlayer(c echo.Context) error {
 	// Conecta ao banco de dados
 	db, err := db.ConnectDB()
-
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
 
-	// Obtém o valor do parâmetro country da URL da rota
+	// Obtém o valor do parâmetro idteam da URL da rota
 	idteam := c.Param("idteam")
 
 	// Executa a consulta SQL que seleciona todos os jogadores do time informado
-	rows, err := db.Query("SELECT * FROM Player WHERE idteam = ?", idteam)
+	rows, err := db.Query("SELECT Name, City, Country, Birth, IdTeam, ID, COALESCE(Height, '0,00') as Height FROM Player WHERE IdTeam = ?", idteam)
 	if err != nil {
-		// Lida com o erro
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
-	defer rows.Close()
 
-	// Cria uma slice de Team para armazenar os dados dos times
-	var players []structs.Player
+	// Cria um slice para armazenar os jogadores
+	players := []structs.Player{}
 
+	// Lê os resultados
 	for rows.Next() {
-		// Cria uma variável do tipo Player para cada linha do resultado
+		// Cria um jogador vazio
 		var player structs.Player
 
-		// Lê o resultado da consulta e preenche a estrutura do time com os dados obtidos
+		// Preenche o jogador com os dados da linha
 		var birthStr string
-		err := rows.Scan(&player.Name, &player.City, &player.Country, &birthStr, &player.IdTeam, &player.ID, &player.Height)
+		err = rows.Scan(&player.Name, &player.City, &player.Country, &birthStr, &player.IdTeam, &player.ID, &player.Height)
 		if err != nil {
-			// Lida com o erro
 			return c.String(http.StatusInternalServerError, err.Error())
 		}
 		if birthStr != "0000-00-00" {
 			player.Birth, err = time.Parse("2006-01-02", birthStr)
 			if err != nil {
-				// Handle the error
 				return c.String(http.StatusInternalServerError, err.Error())
 			}
-		} else {
-			// Handle '0000-00-00' birth date here
-			// For example, you can leave player.Birth as zero value (which is '0001-01-01 00:00:00 +0000 UTC' for time.Time)
 		}
 
-		// Adiciona o jogador à slice de jogadores
+		// Adiciona o jogador ao slice de jogadores
 		players = append(players, player)
 	}
 
-	// Converte a slice de jogadores em JSON
+	// Fecha o conjunto de resultados
+	rows.Close()
+
+	// Converte o slice de jogadores em JSON
 	playersJSON, err := json.Marshal(players)
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
@@ -464,7 +463,7 @@ func GetByCountryPlayer(c echo.Context) error {
 	country := c.Param("country")
 
 	// Execute the SQL query that selects all players from the informed country
-	rows, err := db.Query("SELECT * FROM Player WHERE Country = ?", country)
+	rows, err := db.Query("SELECT Name, City, Country, Birth, IdTeam, ID, COALESCE(Height, '0,00') as Height FROM Player WHERE Country = ?", country)
 	if err != nil {
 		// Handle the error
 		return c.String(http.StatusInternalServerError, err.Error())
@@ -475,14 +474,13 @@ func GetByCountryPlayer(c echo.Context) error {
 	var players []structs.Player
 
 	for rows.Next() {
-		// Create a variable of type Player for each row of the result
-		var player structs.Player
+		// Cria um jogador vazio
+		player := structs.Player{}
 
-		// Read the result of the query and fill the player structure with the obtained data
+		// Preenche o jogador com os dados da linha
 		var birthStr string
-		err := rows.Scan(&player.Name, &player.City, &player.Country, &birthStr, &player.IdTeam, &player.ID, &player.Height)
+		err = rows.Scan(&player.Name, &player.City, &player.Country, &birthStr, &player.IdTeam, &player.ID, &player.Height)
 		if err != nil {
-			// Handle the error
 			return c.String(http.StatusInternalServerError, err.Error())
 		}
 		if birthStr != "0000-00-00" {
@@ -491,12 +489,9 @@ func GetByCountryPlayer(c echo.Context) error {
 				// Handle the error
 				return c.String(http.StatusInternalServerError, err.Error())
 			}
-		} else {
-			// Handle '0000-00-00' birth date here
-			// For example, you can leave player.Birth as zero value (which is '0001-01-01 00:00:00 +0000 UTC' for time.Time)
 		}
 
-		// Add the player to the slice of players
+		// Adiciona o jogador ao slice de jogadores
 		players = append(players, player)
 	}
 
@@ -614,10 +609,11 @@ func GetByNamePlayer(c echo.Context) error {
 // @Accept  json
 // @Produce  json
 // @Param name query string true "Player Name"
-// @Param team query string true "Team ID"
+// @Param idteam query string true "Id Team"
 // @Param city query string true "City"
 // @Param country query string true "Country"
-// @Param birth query string true "Birth"
+// @Param birth query string true "Birth" example="AAAA-MM-DD"
+// @Param height query string true "Height"
 // @Success 200 {object} structs.Player
 // @Router /api/v1/player/insert [post]
 func InsertPlayer(c echo.Context) error {
@@ -629,13 +625,20 @@ func InsertPlayer(c echo.Context) error {
 
 	// Get the player data from the URL
 	name := c.QueryParam("name")
-	idteam := c.QueryParam("team")
+	idteam := c.QueryParam("idteam")
 	city := c.QueryParam("city")
 	country := c.QueryParam("country")
 	birth := c.QueryParam("birth")
+	height := c.QueryParam("height")
+
+	// Converte a string de data de nascimento para o tipo date
+	birthDate, err := time.Parse("2006-01-02", birth)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
 
 	// Execute the SQL query
-	result, err := db.Exec("INSERT INTO Player (Name, IdTeam, City, Country, Birth) VALUES (?, ?, ?, ?, ?)", name, idteam, city, country, birth)
+	result, err := db.Exec("INSERT INTO Player (Name, IdTeam, City, Country, Birth, Height) VALUES (?, ?, ?, ?, ?, ?)", name, idteam, city, country, birthDate, height)
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}

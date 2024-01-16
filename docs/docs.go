@@ -124,7 +124,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Team ID",
+                        "description": "IdTeam",
                         "name": "idteam",
                         "in": "path",
                         "required": true
@@ -198,8 +198,8 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "Team ID",
-                        "name": "team",
+                        "description": "Id Team",
+                        "name": "idteam",
                         "in": "query",
                         "required": true
                     },
@@ -221,6 +221,13 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Birth",
                         "name": "birth",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Height",
+                        "name": "height",
                         "in": "query",
                         "required": true
                     }
@@ -373,6 +380,29 @@ const docTemplate = `{
                     "Teams"
                 ],
                 "summary": "Insert a team",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Team Name",
+                        "name": "name",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "City",
+                        "name": "city",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Country",
+                        "name": "country",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -396,6 +426,36 @@ const docTemplate = `{
                     "Teams"
                 ],
                 "summary": "Update a team",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID Team",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Team Name",
+                        "name": "name",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "City",
+                        "name": "city",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Country",
+                        "name": "country",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -418,6 +478,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "country": {
+                    "type": "string"
+                },
+                "height": {
                     "type": "string"
                 },
                 "id": {
