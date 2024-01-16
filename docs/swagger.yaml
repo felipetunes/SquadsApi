@@ -1,0 +1,204 @@
+definitions:
+  structs.Player:
+    properties:
+      age:
+        type: integer
+      city:
+        type: string
+      country:
+        type: string
+      id:
+        type: integer
+      idteam:
+        type: integer
+      name:
+        type: string
+    type: object
+  structs.Team:
+    properties:
+      city:
+        type: string
+      country:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /api/v1/player/getall:
+    get:
+      consumes:
+      - application/json
+      description: Get all players
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/structs.Player'
+            type: array
+      summary: Get all players
+      tags:
+      - Players
+  /api/v1/player/getbyidteam/{idteam}:
+    get:
+      consumes:
+      - application/json
+      description: Get players by team ID
+      parameters:
+      - description: Team ID
+        in: path
+        name: idteam
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/structs.Player'
+            type: array
+      summary: Get players by team ID
+      tags:
+      - Players
+  /api/v1/player/getbyname/{name}:
+    get:
+      consumes:
+      - application/json
+      description: Get a player by name
+      parameters:
+      - description: Player Name
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/structs.Player'
+      summary: Get a player by name
+      tags:
+      - Players
+  /api/v1/team/getall:
+    get:
+      consumes:
+      - application/json
+      description: Get all teams
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/structs.Team'
+            type: array
+      summary: Get all teams
+      tags:
+      - Teams
+  /api/v1/team/getbycountry/{country}:
+    get:
+      consumes:
+      - application/json
+      description: Get teams by country
+      parameters:
+      - description: Country Name
+        in: path
+        name: country
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/structs.Team'
+            type: array
+      summary: Get teams by country
+      tags:
+      - Teams
+  /api/v1/team/getbyid/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get a team by ID
+      parameters:
+      - description: Team ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/structs.Team'
+      summary: Get a team by ID
+      tags:
+      - Teams
+  /api/v1/team/getbyname/{name}:
+    get:
+      consumes:
+      - application/json
+      description: Get a team by name
+      parameters:
+      - description: Team Name
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/structs.Team'
+      summary: Get a team by name
+      tags:
+      - Teams
+  /api/v1/team/insert:
+    post:
+      consumes:
+      - application/json
+      description: Insert a team
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/structs.Team'
+      summary: Insert a team
+      tags:
+      - Teams
+  /api/v1/team/update:
+    put:
+      consumes:
+      - application/json
+      description: Update a team
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/structs.Team'
+      summary: Update a team
+      tags:
+      - Teams
+swagger: "2.0"

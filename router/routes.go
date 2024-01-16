@@ -11,7 +11,14 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-// Função que retorna todos os times
+// GetAllTeams godoc
+// @Summary Get all teams
+// @Description Get all teams
+// @Tags Teams
+// @Accept  json
+// @Produce  json
+// @Success 200 {array} structs.Team
+// @Router /api/v1/team/getall [get]
 func GetAllTeams(c echo.Context) error {
 	// Conecta ao banco de dados
 	db, err := db.ConnectDB()
@@ -55,7 +62,14 @@ func GetAllTeams(c echo.Context) error {
 	return c.JSONBlob(http.StatusOK, teamsJSON)
 }
 
-// Função que retorna todos os times
+// GetAllPlayers godoc
+// @Summary Get all players
+// @Description Get all players
+// @Tags Players
+// @Accept  json
+// @Produce  json
+// @Success 200 {array} structs.Player
+// @Router /api/v1/player/getall [get]
 func GetAllPlayers(c echo.Context) error {
 	// Conecta ao banco de dados
 	db, err := db.ConnectDB()
@@ -100,7 +114,14 @@ func GetAllPlayers(c echo.Context) error {
 	return c.JSONBlob(http.StatusOK, playersJSON)
 }
 
-// Função que insere um novo time
+// InsertTeam godoc
+// @Summary Insert a team
+// @Description Insert a team
+// @Tags Teams
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} structs.Team
+// @Router /api/v1/team/insert [post]
 func InsertTeam(c echo.Context) error {
 	// Conecta ao banco de dados
 	db, err := db.ConnectDB()
@@ -129,7 +150,14 @@ func InsertTeam(c echo.Context) error {
 	return c.String(http.StatusOK, fmt.Sprintf("Time inserido com o ID %d", id))
 }
 
-// Função que atualiza um time existente
+// UpdateTeam godoc
+// @Summary Update a team
+// @Description Update a team
+// @Tags Teams
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} structs.Team
+// @Router /api/v1/team/update [put]
 func UpdateTeam(c echo.Context) error {
 	// Conecta ao banco de dados
 	db, err := db.ConnectDB()
@@ -159,7 +187,6 @@ func UpdateTeam(c echo.Context) error {
 	return c.String(http.StatusOK, fmt.Sprintf("%d linha(s) afetada(s)", rows))
 }
 
-// Função que deleta um time existente
 func DeleteTeam(c echo.Context) error {
 	// Conecta ao banco de dados
 	db, err := db.ConnectDB()
@@ -186,7 +213,15 @@ func DeleteTeam(c echo.Context) error {
 	return c.String(http.StatusOK, fmt.Sprintf("%d linha(s) afetada(s)", rows))
 }
 
-// Função que retorna um time pelo seu ID
+// GetByIdTeam godoc
+// @Summary Get a team by ID
+// @Description Get a team by ID
+// @Tags Teams
+// @Accept  json
+// @Produce  json
+// @Param id path string true "Team ID"
+// @Success 200 {object} structs.Team
+// @Router /api/v1/team/getbyid/{id} [get]
 func GetByIdTeam(c echo.Context) error {
 	// Conecta ao banco de dados
 	db, err := db.ConnectDB()
@@ -221,7 +256,15 @@ func GetByIdTeam(c echo.Context) error {
 	return c.JSONBlob(http.StatusOK, teamJSON)
 }
 
-// Função que retorna os jogadores pelo ID do time
+// GetByIdTeamPlayer godoc
+// @Summary Get players by team ID
+// @Description Get players by team ID
+// @Tags Players
+// @Accept  json
+// @Produce  json
+// @Param idteam path string true "Team ID"
+// @Success 200 {array} structs.Player
+// @Router /api/v1/player/getbyidteam/{idteam} [get]
 func GetByIdTeamPlayer(c echo.Context) error {
 	// Conecta ao banco de dados
 	db, err := db.ConnectDB()
@@ -269,7 +312,15 @@ func GetByIdTeamPlayer(c echo.Context) error {
 	return c.JSONBlob(http.StatusOK, playersJSON)
 }
 
-// Função que retorna um time pelo país
+// GetByCountryTeam godoc
+// @Summary Get teams by country
+// @Description Get teams by country
+// @Tags Teams
+// @Accept  json
+// @Produce  json
+// @Param country path string true "Country Name"
+// @Success 200 {array} structs.Team
+// @Router /api/v1/team/getbycountry/{country} [get]
 func GetByCountryTeam(c echo.Context) error {
 	// Conecta ao banco de dados
 	db, err := db.ConnectDB()
@@ -317,7 +368,15 @@ func GetByCountryTeam(c echo.Context) error {
 	return c.JSONBlob(http.StatusOK, teamsJSON)
 }
 
-// Função que retorna um time pelo seu nome
+// GetByNameTeam godoc
+// @Summary Get a team by name
+// @Description Get a team by name
+// @Tags Teams
+// @Accept  json
+// @Produce  json
+// @Param name path string true "Team Name"
+// @Success 200 {object} structs.Team
+// @Router /api/v1/team/getbyname/{name} [get]
 func GetByNameTeam(c echo.Context) error {
 	// Conecta ao banco de dados
 	db, err := db.ConnectDB()
@@ -352,7 +411,15 @@ func GetByNameTeam(c echo.Context) error {
 	return c.JSONBlob(http.StatusOK, teamJSON)
 }
 
-// Função que retorna um time pelo seu nome
+// GetByNamePlayer godoc
+// @Summary Get a player by name
+// @Description Get a player by name
+// @Tags Players
+// @Accept  json
+// @Produce  json
+// @Param name path string true "Player Name"
+// @Success 200 {object} structs.Player
+// @Router /api/v1/player/getbyname/{name} [get]
 func GetByNamePlayer(c echo.Context) error {
 	// Conecta ao banco de dados
 	db, err := db.ConnectDB()
