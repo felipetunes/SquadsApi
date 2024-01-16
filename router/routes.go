@@ -652,3 +652,56 @@ func InsertPlayer(c echo.Context) error {
 	// Send the response with the ID
 	return c.String(http.StatusOK, fmt.Sprintf("Player inserted with ID %d", id))
 }
+
+// UpdatePlayer godoc
+// @Summary Update a player
+// @Description Update a player
+// @Tags Players
+// @Accept  json
+// @Produce  json
+// @Param id query int true "ID Player"
+// @Param name query string true "Player Name"
+// @Param idteam query string true "Id Team"
+// @Param city query string true "City"
+// @Param country query string true "Country"
+// @Param birth query string true "Birth" example="AAAA-MM-DD"
+// @Param height query string true "Height"
+// @Success 200 {object} structs.Player
+// @Router /api/v1/player/update [put]
+func UpdatePlayer(c echo.Context) error {
+	// Conecta ao banco de dados
+	db, err := db.ConnectDB()
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	// Obtém os dados do jogador da URL
+	id := c.QueryParam("id")
+	name := c.QueryParam("name")
+	idteam := c.QueryParam("idteam")
+	city := c.QueryParam("city")
+	country := c.QueryParam("country")
+	birth := c.QueryParam("birth")
+	height := c.QueryParam("height")
+
+	// Converte a string de data de nascimento para o tipo date
+	birthDate, err := time.Parse("2006-01-02", birth)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	// Executa a consulta SQL
+	result, err := db.Exec("UPDATE Player SET name = ?, idteam = ?, city = ?, country = ?, birth = ?, height = ? WHERE id = ?", name, idteam, city, country, birthDate, height, id)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	// Obtém o número de linhas afetadas
+	rows, err := result.RowsAffected()
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	// Envia a resposta com o número de linhas afetadas
+	return c.String(http.StatusOK, fmt.Sprintf("%d linha(s) afetada(s)", rows))
+}

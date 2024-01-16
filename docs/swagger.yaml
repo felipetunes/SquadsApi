@@ -181,6 +181,57 @@ paths:
       summary: Insert a player
       tags:
       - Players
+  /api/v1/player/update:
+    put:
+      consumes:
+      - application/json
+      description: Update a player
+      parameters:
+      - description: ID Player
+        in: query
+        name: id
+        required: true
+        type: integer
+      - description: Player Name
+        in: query
+        name: name
+        required: true
+        type: string
+      - description: Id Team
+        in: query
+        name: idteam
+        required: true
+        type: string
+      - description: City
+        in: query
+        name: city
+        required: true
+        type: string
+      - description: Country
+        in: query
+        name: country
+        required: true
+        type: string
+      - description: Birth
+        in: query
+        name: birth
+        required: true
+        type: string
+      - description: Height
+        in: query
+        name: height
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/structs.Player'
+      summary: Update a player
+      tags:
+      - Players
   /api/v1/team/getall:
     get:
       consumes:
