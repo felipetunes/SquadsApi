@@ -9,7 +9,6 @@
         "contact": {}
     },
     "host": "localhost:8080",
-    "basePath": "/api/v1",
     "paths": {
         "/api/v1/player/getall": {
             "get": {
@@ -141,7 +140,7 @@
         },
         "/api/v1/player/getbyname/{name}": {
             "get": {
-                "description": "Get a player by name",
+                "description": "Get players by name",
                 "consumes": [
                     "application/json"
                 ],
@@ -151,7 +150,7 @@
                 "tags": [
                     "Players"
                 ],
-                "summary": "Get a player by name",
+                "summary": "Get players by name",
                 "parameters": [
                     {
                         "type": "string",
@@ -165,7 +164,10 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/structs.Player"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/structs.Player"
+                            }
                         }
                     }
                 }
@@ -267,7 +269,7 @@
                         "required": true
                     },
                     {
-                        "type": "string",
+                        "type": "integer",
                         "description": "Id Team",
                         "name": "idteam",
                         "in": "query",
@@ -407,7 +409,7 @@
         },
         "/api/v1/team/getbyname/{name}": {
             "get": {
-                "description": "Get a team by name",
+                "description": "Get teams by name",
                 "consumes": [
                     "application/json"
                 ],
@@ -417,7 +419,7 @@
                 "tags": [
                     "Teams"
                 ],
-                "summary": "Get a team by name",
+                "summary": "Get teams by name",
                 "parameters": [
                     {
                         "type": "string",
@@ -431,7 +433,10 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/structs.Team"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/structs.Team"
+                            }
                         }
                     }
                 }

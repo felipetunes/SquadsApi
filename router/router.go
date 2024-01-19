@@ -82,7 +82,7 @@ func defineTeamRoutes(g *echo.Group) {
 	// @Produce  json
 	// @Success 200 {object} structs.Team
 	// @Router api/v1/team/getbyname/{name} [get]
-	g.GET("/team/getbyname/:name", GetByNameTeam)
+	g.GET("/team/getbyname/:name", GetTeamsByName)
 
 	// @Summary Obter um time por país
 	// @Description Obter um time por país
@@ -116,7 +116,7 @@ func definePlayerRoutes(g *echo.Group) {
 	// @Produce  json
 	// @Success 200 {object} structs.Player
 	// @Router api/v1/player/getbyname/{name} [get]
-	g.GET("/player/getbyname/:name", GetByNamePlayer)
+	g.GET("/player/getbyname/:name", GetPlayersByName)
 
 	// @Summary Obter jogadores por ID do time
 	// @Description Obter jogadores por ID do time

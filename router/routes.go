@@ -256,7 +256,7 @@ func GetByIdTeam(c echo.Context) error {
 	var team structs.Team
 
 	// Lê o resultado da consulta e preenche a estrutura do time com os dados obtidos
-	err = row.Scan(&team.ID, &team.Name, &team.City, &team.Country)
+	err = row.Scan(&team.Name, &team.City, &team.Country, &team.ID)
 	if err != nil {
 		// Lida com o erro
 		return c.String(http.StatusInternalServerError, err.Error())
@@ -506,15 +506,15 @@ func GetByCountryPlayer(c echo.Context) error {
 }
 
 // GetByNameTeam godoc
-// @Summary Get a team by name
-// @Description Get a team by name
+// @Summary Get teams by name
+// @Description Get teams by name
 // @Tags Teams
 // @Accept  json
 // @Produce  json
 // @Param name path string true "Team Name"
-// @Success 200 {object} structs.Team
+// @Success 200 {array} structs.Team
 // @Router /api/v1/team/getbyname/{name} [get]
-func GetByNameTeam(c echo.Context) error {
+func GetTeamsByName(c echo.Context) error {
 	// Conecta ao banco de dados
 	db, err := db.ConnectDB()
 
@@ -525,39 +525,46 @@ func GetByNameTeam(c echo.Context) error {
 	// Obtém o valor do parâmetro name da URL da rota
 	name := c.Param("name")
 
-	// Executa a consulta SQL que seleciona o time com o nome informado
-	row := db.QueryRow("SELECT * FROM Team WHERE name = ?", name)
-
-	// Cria uma variável do tipo Team para armazenar os dados do time
-	var team structs.Team
-
-	// Lê o resultado da consulta e preenche a estrutura do time com os dados obtidos
-	err = row.Scan(&team.ID, &team.Name, &team.City, &team.Country)
+	// Executa a consulta SQL que seleciona os times com o nome informado
+	rows, err := db.Query("SELECT Name, City, Country, Id FROM Team WHERE name LIKE ?", "%"+name+"%")
 	if err != nil {
-		// Lida com o erro
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
+	defer rows.Close()
 
-	// Converte a estrutura do time em JSON
-	teamJSON, err := json.Marshal(team)
+	// Cria uma lista para armazenar os times
+	var teams []structs.Team
+
+	// Lê o resultado da consulta e preenche a lista de times com os dados obtidos
+	for rows.Next() {
+		var team structs.Team
+		err = rows.Scan(&team.Name, &team.City, &team.Country, &team.ID)
+		if err != nil {
+			return c.String(http.StatusInternalServerError, err.Error())
+		}
+		teams = append(teams, team)
+	}
+
+	// Converte a lista de times em JSON
+	teamsJSON, err := json.Marshal(teams)
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
 
 	// Envia a resposta em JSON
-	return c.JSONBlob(http.StatusOK, teamJSON)
+	return c.JSONBlob(http.StatusOK, teamsJSON)
 }
 
-// GetByNamePlayer godoc
-// @Summary Get a player by name
-// @Description Get a player by name
+// GetPlayersByName godoc
+// @Summary Get players by name
+// @Description Get players by name
 // @Tags Players
 // @Accept  json
 // @Produce  json
 // @Param name path string true "Player Name"
-// @Success 200 {object} structs.Player
+// @Success 200 {array} structs.Player
 // @Router /api/v1/player/getbyname/{name} [get]
-func GetByNamePlayer(c echo.Context) error {
+func GetPlayersByName(c echo.Context) error {
 	// Conecta ao banco de dados
 	db, err := db.ConnectDB()
 
@@ -568,38 +575,51 @@ func GetByNamePlayer(c echo.Context) error {
 	// Obtém o valor do parâmetro name da URL da rota
 	name := c.Param("name")
 
-	// Executa a consulta SQL que seleciona o player com o nome informado
-	row := db.QueryRow("SELECT * FROM Player WHERE name = ?", name)
-
-	// Cria uma variável do tipo player para armazenar os dados do time
-	var player structs.Player
-
-	// Lê o resultado da consulta e preenche a estrutura do time com os dados obtidos
-	var birthStr string
-	err = row.Scan(&player.Name, &player.City, &player.Country, &birthStr, &player.IdTeam, &player.ID, &player.Height)
+	// Executa a consulta SQL que seleciona os players cujo nome contém o texto informado
+	rows, err := db.Query("SELECT Name, City, Country, Birth, IdTeam, ID, COALESCE(Height, '0,00') FROM Player WHERE name LIKE ?", "%"+name+"%")
 	if err != nil {
 		// Lida com o erro
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
-	if birthStr != "0000-00-00" {
-		player.Birth, err = time.Parse("2006-01-02", birthStr)
+	defer rows.Close()
+
+	// Cria uma lista para armazenar os jogadores
+	var players []structs.Player
+
+	for rows.Next() {
+		// Cria uma variável do tipo player para armazenar os dados do jogador
+		var player structs.Player
+
+		// Lê o resultado da consulta e preenche a estrutura do jogador com os dados obtidos
+		var birthStr string
+		err = rows.Scan(&player.Name, &player.City, &player.Country, &birthStr, &player.IdTeam, &player.ID, &player.Height)
 		if err != nil {
-			// Handle the error
+			// Lida com o erro
 			return c.String(http.StatusInternalServerError, err.Error())
 		}
-	} else {
-		// Handle '0000-00-00' birth date here
-		// For example, you can leave player.Birth as zero value (which is '0001-01-01 00:00:00 +0000 UTC' for time.Time)
+		if birthStr != "0000-00-00" {
+			player.Birth, err = time.Parse("2006-01-02", birthStr)
+			if err != nil {
+				// Handle the error
+				return c.String(http.StatusInternalServerError, err.Error())
+			}
+		} else {
+			// Handle '0000-00-00' birth date here
+			// For example, you can leave player.Birth as zero value (which is '0001-01-01 00:00:00 +0000 UTC' for time.Time)
+		}
+
+		// Adiciona o jogador à lista
+		players = append(players, player)
 	}
 
-	// Converte a estrutura do time em JSON
-	teamJSON, err := json.Marshal(player)
+	// Converte a lista de jogadores em JSON
+	playersJSON, err := json.Marshal(players)
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
 
 	// Envia a resposta em JSON
-	return c.JSONBlob(http.StatusOK, teamJSON)
+	return c.JSONBlob(http.StatusOK, playersJSON)
 }
 
 // InsertPlayer godoc
@@ -661,7 +681,7 @@ func InsertPlayer(c echo.Context) error {
 // @Produce  json
 // @Param id query int true "ID Player"
 // @Param name query string true "Player Name"
-// @Param idteam query string true "Id Team"
+// @Param idteam query int true "Id Team"
 // @Param city query string true "City"
 // @Param country query string true "Country"
 // @Param birth query string true "Birth" example="AAAA-MM-DD"
@@ -685,9 +705,12 @@ func UpdatePlayer(c echo.Context) error {
 	height := c.QueryParam("height")
 
 	// Converte a string de data de nascimento para o tipo date
-	birthDate, err := time.Parse("2006-01-02", birth)
-	if err != nil {
-		return c.String(http.StatusInternalServerError, err.Error())
+	var birthDate time.Time
+	if birth != "" {
+		birthDate, err = time.Parse("2006-01-02", birth)
+		if err != nil {
+			return c.String(http.StatusInternalServerError, err.Error())
+		}
 	}
 
 	// Executa a consulta SQL

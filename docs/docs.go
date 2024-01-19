@@ -145,7 +145,7 @@ const docTemplate = `{
         },
         "/api/v1/player/getbyname/{name}": {
             "get": {
-                "description": "Get a player by name",
+                "description": "Get players by name",
                 "consumes": [
                     "application/json"
                 ],
@@ -155,7 +155,7 @@ const docTemplate = `{
                 "tags": [
                     "Players"
                 ],
-                "summary": "Get a player by name",
+                "summary": "Get players by name",
                 "parameters": [
                     {
                         "type": "string",
@@ -169,7 +169,10 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/structs.Player"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/structs.Player"
+                            }
                         }
                     }
                 }
@@ -271,7 +274,7 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "type": "string",
+                        "type": "integer",
                         "description": "Id Team",
                         "name": "idteam",
                         "in": "query",
@@ -411,7 +414,7 @@ const docTemplate = `{
         },
         "/api/v1/team/getbyname/{name}": {
             "get": {
-                "description": "Get a team by name",
+                "description": "Get teams by name",
                 "consumes": [
                     "application/json"
                 ],
@@ -421,7 +424,7 @@ const docTemplate = `{
                 "tags": [
                     "Teams"
                 ],
-                "summary": "Get a team by name",
+                "summary": "Get teams by name",
                 "parameters": [
                     {
                         "type": "string",
@@ -435,7 +438,10 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/structs.Team"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/structs.Team"
+                            }
                         }
                     }
                 }
@@ -592,7 +598,7 @@ const docTemplate = `{
 var SwaggerInfo = &swag.Spec{
 	Version:          "",
 	Host:             "localhost:8080",
-	BasePath:         "/api/v1",
+	BasePath:         "",
 	Schemes:          []string{"http"},
 	Title:            "Squads API",
 	Description:      "Essa API permite que os usuários gerenciem times e jogadores de futebol. Os usuários podem inserir novos times e jogadores, atualizar informações existentes e consultar detalhes.",

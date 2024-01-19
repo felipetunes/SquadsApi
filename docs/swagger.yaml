@@ -1,4 +1,3 @@
-basePath: /api/v1
 definitions:
   structs.Player:
     properties:
@@ -124,7 +123,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: Get a player by name
+      description: Get players by name
       parameters:
       - description: Player Name
         in: path
@@ -137,8 +136,10 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/structs.Player'
-      summary: Get a player by name
+            items:
+              $ref: '#/definitions/structs.Player'
+            type: array
+      summary: Get players by name
       tags:
       - Players
   /api/v1/player/insert:
@@ -207,7 +208,7 @@ paths:
         in: query
         name: idteam
         required: true
-        type: string
+        type: integer
       - description: City
         in: query
         name: city
@@ -303,7 +304,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: Get a team by name
+      description: Get teams by name
       parameters:
       - description: Team Name
         in: path
@@ -316,8 +317,10 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/structs.Team'
-      summary: Get a team by name
+            items:
+              $ref: '#/definitions/structs.Team'
+            type: array
+      summary: Get teams by name
       tags:
       - Teams
   /api/v1/team/insert:
