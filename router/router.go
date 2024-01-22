@@ -57,14 +57,25 @@ func defineTeamRoutes(g *echo.Group) {
 	// @Router /api/v1/team/update [put]
 	g.PUT("/team/update", UpdateTeam)
 
-	// @Summary Deletar um time
-	// @Description Deletar um time
-	// @Tags times
+	// @Summary Delete a player by ID
+	// @Description Delete a player by ID
+	// @Tags Players
 	// @Accept  json
 	// @Produce  json
-	// @Success 200 {object} structs.Team
-	// @Router /api/v1/team/delete [delete]
-	g.DELETE("/team/delete", DeleteTeam)
+	// @Param id path string true "Player ID"
+	// @Success 200 {object} string
+	// @Router /api/v1/player/delete/{id} [delete]
+	g.DELETE("/player/delete/:id", DeletePlayer)
+
+	// @Summary Delete a team by ID
+	// @Description Delete a team by ID
+	// @Tags Team
+	// @Accept  json
+	// @Produce  json
+	// @Param id path string true "ID Team"
+	// @Success 200 {object} string
+	// @Router /api/v1/team/delete/{id} [delete]
+	g.DELETE("/team/delete/:id", DeletePlayer)
 
 	// @Summary Obter um time por ID
 	// @Description Obter um time por ID

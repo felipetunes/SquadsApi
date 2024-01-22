@@ -203,6 +203,50 @@ func UpdateTeam(c echo.Context) error {
 	return c.String(http.StatusOK, fmt.Sprintf("%d linha(s) afetada(s)", rows))
 }
 
+// DeletePlayer godoc
+// @Summary Delete a player by ID
+// @Description Delete a player by ID
+// @Tags Players
+// @Accept  json
+// @Produce  json
+// @Param id path string true "Player ID"
+// @Success 200 {object} string
+// @Router /api/v1/player/delete/{id} [delete]
+func DeletePlayer(c echo.Context) error {
+	// Conecta ao banco de dados
+	db, err := db.ConnectDB()
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	// Obtém o ID do jogador da URL
+	id := c.Param("id")
+
+	// Executa a consulta SQL
+	result, err := db.Exec("DELETE FROM Player WHERE id = ?", id)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	// Obtém o número de linhas afetadas
+	rows, err := result.RowsAffected()
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	// Envia a resposta com o número de linhas afetadas
+	return c.String(http.StatusOK, fmt.Sprintf("%d linha(s) afetada(s)", rows))
+}
+
+// DeleteTeam godoc
+// @Summary Delete a team by ID
+// @Description Delete a team by ID
+// @Tags Teams
+// @Accept  json
+// @Produce  json
+// @Param id path string true "Team ID"
+// @Success 200 {object} string
+// @Router /api/v1/team/delete/{id} [delete]
 func DeleteTeam(c echo.Context) error {
 	// Conecta ao banco de dados
 	db, err := db.ConnectDB()
@@ -211,7 +255,7 @@ func DeleteTeam(c echo.Context) error {
 	}
 
 	// Obtém o ID do time da URL
-	id := c.QueryParam("id")
+	id := c.Param("id")
 
 	// Executa a consulta SQL
 	result, err := db.Exec("DELETE FROM Team WHERE id = ?", id)

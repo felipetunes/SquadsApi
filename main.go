@@ -8,7 +8,7 @@ import (
 )
 
 // @title Squads API
-// @description Essa API permite que os usuários gerenciem times e jogadores de futebol. Os usuários podem inserir novos times e jogadores, atualizar informações existentes e consultar detalhes.
+// @description This API allows users to manage football teams and players. Users can enter new teams and players, update existing information, and view details.
 // @schemes http
 // @host localhost:8080
 func main() {

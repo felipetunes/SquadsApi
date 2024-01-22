@@ -35,6 +35,27 @@ info:
     e consultar detalhes.
   title: Squads API
 paths:
+  /api/v1/player/delete/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a player by ID
+      parameters:
+      - description: Player ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Delete a player by ID
+      tags:
+      - Players
   /api/v1/player/getall:
     get:
       consumes:
@@ -239,6 +260,27 @@ paths:
       summary: Update a player
       tags:
       - Players
+  /api/v1/team/delete:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a team
+      parameters:
+      - description: ID Team
+        in: query
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Delete a team
+      tags:
+      - Teams
   /api/v1/team/getall:
     get:
       consumes:
