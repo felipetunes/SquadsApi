@@ -30,9 +30,8 @@ definitions:
 host: localhost:8080
 info:
   contact: {}
-  description: Essa API permite que os usuários gerenciem times e jogadores de futebol.
-    Os usuários podem inserir novos times e jogadores, atualizar informações existentes
-    e consultar detalhes.
+  description: This API allows users to manage football teams and players. Users can
+    enter new teams and players, update existing information, and view details.
   title: Squads API
 paths:
   /api/v1/player/delete/{id}:
@@ -260,17 +259,17 @@ paths:
       summary: Update a player
       tags:
       - Players
-  /api/v1/team/delete:
+  /api/v1/team/delete/{id}:
     delete:
       consumes:
       - application/json
-      description: Delete a team
+      description: Delete a team by ID
       parameters:
-      - description: ID Team
-        in: query
+      - description: Team ID
+        in: path
         name: id
         required: true
-        type: integer
+        type: string
       produces:
       - application/json
       responses:
@@ -278,7 +277,7 @@ paths:
           description: OK
           schema:
             type: string
-      summary: Delete a team
+      summary: Delete a team by ID
       tags:
       - Teams
   /api/v1/team/getall:

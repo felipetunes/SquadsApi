@@ -351,9 +351,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/team/delete": {
+        "/api/v1/team/delete/{id}": {
             "delete": {
-                "description": "Delete a team",
+                "description": "Delete a team by ID",
                 "consumes": [
                     "application/json"
                 ],
@@ -363,13 +363,13 @@ const docTemplate = `{
                 "tags": [
                     "Teams"
                 ],
-                "summary": "Delete a team",
+                "summary": "Delete a team by ID",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "ID Team",
+                        "type": "string",
+                        "description": "Team ID",
                         "name": "id",
-                        "in": "query",
+                        "in": "path",
                         "required": true
                     }
                 ],
@@ -665,7 +665,7 @@ var SwaggerInfo = &swag.Spec{
 	BasePath:         "",
 	Schemes:          []string{"http"},
 	Title:            "Squads API",
-	Description:      "Essa API permite que os usuários gerenciem times e jogadores de futebol. Os usuários podem inserir novos times e jogadores, atualizar informações existentes e consultar detalhes.",
+	Description:      "This API allows users to manage football teams and players. Users can enter new teams and players, update existing information, and view details.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

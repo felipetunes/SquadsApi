@@ -27,6 +27,9 @@ func GetAllTeams(c echo.Context) error {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
 
+	// Certifique-se de que a conexão será fechada no final desta função
+	defer db.Close()
+
 	// Executa a consulta SQL
 	rows, err := db.Query("SELECT * FROM Team")
 	if err != nil {
@@ -77,6 +80,9 @@ func GetAllPlayers(c echo.Context) error {
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
+
+	// Certifique-se de que a conexão será fechada no final desta função
+	defer db.Close()
 
 	// Executa a consulta SQL
 	rows, err := db.Query("SELECT Name, City, Country, Birth, IdTeam, ID, COALESCE(Height, '0,00') as Height FROM Player")
@@ -141,6 +147,9 @@ func InsertTeam(c echo.Context) error {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
 
+	// Certifique-se de que a conexão será fechada no final desta função
+	defer db.Close()
+
 	// Obtém os dados do time da URL
 	name := c.QueryParam("name")
 	city := c.QueryParam("city")
@@ -181,6 +190,9 @@ func UpdateTeam(c echo.Context) error {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
 
+	// Certifique-se de que a conexão será fechada no final desta função
+	defer db.Close()
+
 	// Obtém os dados do time da URL
 	id := c.QueryParam("id")
 	name := c.QueryParam("name")
@@ -219,6 +231,9 @@ func DeletePlayer(c echo.Context) error {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
 
+	// Certifique-se de que a conexão será fechada no final desta função
+	defer db.Close()
+
 	// Obtém o ID do jogador da URL
 	id := c.Param("id")
 
@@ -253,6 +268,9 @@ func DeleteTeam(c echo.Context) error {
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
+
+	// Certifique-se de que a conexão será fechada no final desta função
+	defer db.Close()
 
 	// Obtém o ID do time da URL
 	id := c.Param("id")
@@ -290,11 +308,14 @@ func GetByIdTeam(c echo.Context) error {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
 
+	// Certifique-se de que a conexão será fechada no final desta função
+	defer db.Close()
+
 	// Obtém o valor do parâmetro id da URL da rota
 	id := c.Param("id")
 
 	// Executa a consulta SQL que seleciona o time com o ID informado
-	row := db.QueryRow("SELECT * FROM Team WHERE id = ?", id)
+	row := db.QueryRow("SELECT Name, City, Country, ID FROM Team WHERE id = ?", id)
 
 	// Cria uma variável do tipo Team para armazenar os dados do time
 	var team structs.Team
@@ -331,6 +352,9 @@ func GetByIdPlayer(c echo.Context) error {
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
+
+	// Certifique-se de que a conexão será fechada no final desta função
+	defer db.Close()
 
 	// Get the value of the id parameter from the route URL
 	id := c.Param("id")
@@ -383,6 +407,9 @@ func GetByIdTeamPlayer(c echo.Context) error {
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
+
+	// Certifique-se de que a conexão será fechada no final desta função
+	defer db.Close()
 
 	// Obtém o valor do parâmetro idteam da URL da rota
 	idteam := c.Param("idteam")
@@ -448,6 +475,9 @@ func GetByCountryTeam(c echo.Context) error {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
 
+	// Certifique-se de que a conexão será fechada no final desta função
+	defer db.Close()
+
 	// Obtém o valor do parâmetro country da URL da rota
 	country := c.Param("country")
 
@@ -502,6 +532,9 @@ func GetByCountryPlayer(c echo.Context) error {
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
+
+	// Certifique-se de que a conexão será fechada no final desta função
+	defer db.Close()
 
 	// Get the value of the country parameter from the route URL
 	country := c.Param("country")
@@ -566,6 +599,9 @@ func GetTeamsByName(c echo.Context) error {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
 
+	// Certifique-se de que a conexão será fechada no final desta função
+	defer db.Close()
+
 	// Obtém o valor do parâmetro name da URL da rota
 	name := c.Param("name")
 
@@ -615,6 +651,9 @@ func GetPlayersByName(c echo.Context) error {
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
+
+	// Certifique-se de que a conexão será fechada no final desta função
+	defer db.Close()
 
 	// Obtém o valor do parâmetro name da URL da rota
 	name := c.Param("name")
@@ -687,6 +726,9 @@ func InsertPlayer(c echo.Context) error {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
 
+	// Certifique-se de que a conexão será fechada no final desta função
+	defer db.Close()
+
 	// Get the player data from the URL
 	name := c.QueryParam("name")
 	idteam := c.QueryParam("idteam")
@@ -738,6 +780,9 @@ func UpdatePlayer(c echo.Context) error {
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
+
+	// Certifique-se de que a conexão será fechada no final desta função
+	defer db.Close()
 
 	// Obtém os dados do jogador da URL
 	id := c.QueryParam("id")
