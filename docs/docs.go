@@ -265,6 +265,13 @@ const docTemplate = `{
                         "name": "height",
                         "in": "query",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Position",
+                        "name": "position",
+                        "in": "query",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -337,6 +344,13 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Height",
                         "name": "height",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Position",
+                        "name": "position",
                         "in": "query",
                         "required": true
                     }
@@ -634,6 +648,9 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "name": {
+                    "type": "string"
+                },
+                "position": {
                     "type": "string"
                 }
             }

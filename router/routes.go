@@ -85,7 +85,7 @@ func GetAllPlayers(c echo.Context) error {
 	defer db.Close()
 
 	// Executa a consulta SQL
-	rows, err := db.Query("SELECT Name, City, Country, Birth, IdTeam, ID, COALESCE(Height, '0,00') as Height FROM Player")
+	rows, err := db.Query("SELECT Name, City, Country, Birth, IdTeam, ID, COALESCE(Height, '0,00') as Height, COALESCE(Position, '') as Position FROM Player")
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
@@ -100,7 +100,7 @@ func GetAllPlayers(c echo.Context) error {
 
 		// Preenche o jogador com os dados da linha
 		var birthStr string
-		err = rows.Scan(&player.Name, &player.City, &player.Country, &birthStr, &player.IdTeam, &player.ID, &player.Height)
+		err = rows.Scan(&player.Name, &player.City, &player.Country, &birthStr, &player.IdTeam, &player.ID, &player.Height, &player.Position)
 		if err != nil {
 			return c.String(http.StatusInternalServerError, err.Error())
 		}
@@ -360,14 +360,14 @@ func GetByIdPlayer(c echo.Context) error {
 	id := c.Param("id")
 
 	// Execute the SQL query that selects the player with the informed ID
-	row := db.QueryRow("SELECT Name, City, Country, Birth, IdTeam, ID, COALESCE(Height, '0,00') as Height FROM Player WHERE ID = ?", id)
+	row := db.QueryRow("SELECT Name, City, Country, Birth, IdTeam, ID, COALESCE(Height, '0,00') as Height, COALESCE(Position, '') as Position FROM Player WHERE ID = ?", id)
 
 	// Create a variable of type Player to store the player data
 	var player structs.Player
 
 	// Read the result of the query and fill the player structure with the obtained data
 	var birthStr string
-	err = row.Scan(&player.Name, &player.City, &player.Country, &birthStr, &player.IdTeam, &player.ID, &player.Height)
+	err = row.Scan(&player.Name, &player.City, &player.Country, &birthStr, &player.IdTeam, &player.ID, &player.Height, &player.Position)
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
@@ -415,7 +415,7 @@ func GetByIdTeamPlayer(c echo.Context) error {
 	idteam := c.Param("idteam")
 
 	// Executa a consulta SQL que seleciona todos os jogadores do time informado
-	rows, err := db.Query("SELECT Name, City, Country, Birth, IdTeam, ID, COALESCE(Height, '0,00') as Height FROM Player WHERE IdTeam = ?", idteam)
+	rows, err := db.Query("SELECT Name, City, Country, Birth, IdTeam, ID, COALESCE(Height, '0,00') as Height, COALESCE(Position, '') as Position FROM Player WHERE IdTeam = ?", idteam)
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
@@ -430,7 +430,7 @@ func GetByIdTeamPlayer(c echo.Context) error {
 
 		// Preenche o jogador com os dados da linha
 		var birthStr string
-		err = rows.Scan(&player.Name, &player.City, &player.Country, &birthStr, &player.IdTeam, &player.ID, &player.Height)
+		err = rows.Scan(&player.Name, &player.City, &player.Country, &birthStr, &player.IdTeam, &player.ID, &player.Height, &player.Position)
 		if err != nil {
 			return c.String(http.StatusInternalServerError, err.Error())
 		}
@@ -540,7 +540,7 @@ func GetByCountryPlayer(c echo.Context) error {
 	country := c.Param("country")
 
 	// Execute the SQL query that selects all players from the informed country
-	rows, err := db.Query("SELECT Name, City, Country, Birth, IdTeam, ID, COALESCE(Height, '0,00') as Height FROM Player WHERE Country = ?", country)
+	rows, err := db.Query("SELECT Name, City, Country, Birth, IdTeam, ID, COALESCE(Height, '0,00') as Height, COALESCE(Position, '') as Position FROM Player WHERE Country = ?", country)
 	if err != nil {
 		// Handle the error
 		return c.String(http.StatusInternalServerError, err.Error())
@@ -556,7 +556,7 @@ func GetByCountryPlayer(c echo.Context) error {
 
 		// Preenche o jogador com os dados da linha
 		var birthStr string
-		err = rows.Scan(&player.Name, &player.City, &player.Country, &birthStr, &player.IdTeam, &player.ID, &player.Height)
+		err = rows.Scan(&player.Name, &player.City, &player.Country, &birthStr, &player.IdTeam, &player.ID, &player.Height, &player.Position)
 		if err != nil {
 			return c.String(http.StatusInternalServerError, err.Error())
 		}
@@ -659,7 +659,7 @@ func GetPlayersByName(c echo.Context) error {
 	name := c.Param("name")
 
 	// Executa a consulta SQL que seleciona os players cujo nome contém o texto informado
-	rows, err := db.Query("SELECT Name, City, Country, Birth, IdTeam, ID, COALESCE(Height, '0,00') FROM Player WHERE name LIKE ?", "%"+name+"%")
+	rows, err := db.Query("SELECT Name, City, Country, Birth, IdTeam, ID, COALESCE(Height, '0,00'), COALESCE(Position, '') as Position FROM Player WHERE name LIKE ?", "%"+name+"%")
 	if err != nil {
 		// Lida com o erro
 		return c.String(http.StatusInternalServerError, err.Error())
@@ -675,7 +675,7 @@ func GetPlayersByName(c echo.Context) error {
 
 		// Lê o resultado da consulta e preenche a estrutura do jogador com os dados obtidos
 		var birthStr string
-		err = rows.Scan(&player.Name, &player.City, &player.Country, &birthStr, &player.IdTeam, &player.ID, &player.Height)
+		err = rows.Scan(&player.Name, &player.City, &player.Country, &birthStr, &player.IdTeam, &player.ID, &player.Height, &player.Position)
 		if err != nil {
 			// Lida com o erro
 			return c.String(http.StatusInternalServerError, err.Error())
@@ -717,6 +717,7 @@ func GetPlayersByName(c echo.Context) error {
 // @Param country query string true "Country"
 // @Param birth query string true "Birth" example="AAAA-MM-DD"
 // @Param height query string true "Height"
+// @Param position query string true "Position"
 // @Success 200 {object} structs.Player
 // @Router /api/v1/player/insert [post]
 func InsertPlayer(c echo.Context) error {
@@ -736,6 +737,7 @@ func InsertPlayer(c echo.Context) error {
 	country := c.QueryParam("country")
 	birth := c.QueryParam("birth")
 	height := c.QueryParam("height")
+	position := c.QueryParam("position")
 
 	// Converte a string de data de nascimento para o tipo date
 	birthDate, err := time.Parse("2006-01-02", birth)
@@ -744,7 +746,7 @@ func InsertPlayer(c echo.Context) error {
 	}
 
 	// Execute the SQL query
-	result, err := db.Exec("INSERT INTO Player (Name, IdTeam, City, Country, Birth, Height) VALUES (?, ?, ?, ?, ?, ?)", name, idteam, city, country, birthDate, height)
+	result, err := db.Exec("INSERT INTO Player (Name, IdTeam, City, Country, Birth, Height, Position) VALUES (?, ?, ?, ?, ?, ?, ?)", name, idteam, city, country, birthDate, height, position)
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
@@ -772,6 +774,7 @@ func InsertPlayer(c echo.Context) error {
 // @Param country query string true "Country"
 // @Param birth query string true "Birth" example="AAAA-MM-DD"
 // @Param height query string true "Height"
+// @Param position query string true "Position"
 // @Success 200 {object} structs.Player
 // @Router /api/v1/player/update [put]
 func UpdatePlayer(c echo.Context) error {
@@ -781,9 +784,6 @@ func UpdatePlayer(c echo.Context) error {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
 
-	// Certifique-se de que a conexão será fechada no final desta função
-	defer db.Close()
-
 	// Obtém os dados do jogador da URL
 	id := c.QueryParam("id")
 	name := c.QueryParam("name")
@@ -792,6 +792,7 @@ func UpdatePlayer(c echo.Context) error {
 	country := c.QueryParam("country")
 	birth := c.QueryParam("birth")
 	height := c.QueryParam("height")
+	position := c.QueryParam("position")
 
 	// Converte a string de data de nascimento para o tipo date
 	var birthDate time.Time
@@ -803,10 +804,13 @@ func UpdatePlayer(c echo.Context) error {
 	}
 
 	// Executa a consulta SQL
-	result, err := db.Exec("UPDATE Player SET name = ?, idteam = ?, city = ?, country = ?, birth = ?, height = ? WHERE id = ?", name, idteam, city, country, birthDate, height, id)
+	result, err := db.Exec("UPDATE Player SET name = ?, city = ?, country = ?, birth = ?, idteam = ?, height = ?, position = ? WHERE id = ?", name, city, country, birthDate, idteam, height, position, id)
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
+
+	// Certifique-se de que a conexão será fechada no final desta função
+	defer db.Close()
 
 	// Obtém o número de linhas afetadas
 	rows, err := result.RowsAffected()

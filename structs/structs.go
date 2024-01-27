@@ -16,11 +16,12 @@ type Team struct {
 
 // Structure that represents a player
 type Player struct {
-	ID      int       `json:"id"`
-	Name    string    `json:"name"`
-	City    string    `json:"city"`
-	Country string    `json:"country"`
-	Birth   time.Time `json:"birth"`
-	IdTeam  int       `json:"idteam"`
-	Height  string    `json:"height"`
+	ID       int       `json:"id"`
+	Name     string    `json:"name"`
+	City     string    `json:"city"`
+	Country  string    `json:"country"`
+	Birth    time.Time `json:"birth"`
+	IdTeam   int       `json:"idteam"`
+	Height   string    `json:"height"`
+	Position string    `json:"position"`
 }

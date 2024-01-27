@@ -148,6 +148,7 @@ func definePlayerRoutes(g *echo.Group) {
 	// @Param country query string true "Country"
 	// @Param birth query string true "Birth" example="AAAA-MM-DD"
 	// @Param height query string true "Height"
+	// @Param position query string true "Position"
 	// @Success 200 {object} structs.Player
 	// @Router /api/v1/player/insert [post]
 	g.POST("/player/insert", InsertPlayer)
