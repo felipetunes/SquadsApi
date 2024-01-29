@@ -40,6 +40,7 @@ func defineTeamRoutes(g *echo.Group) {
 	// @Param name query string true "Team Name"
 	// @Param city query string true "City"
 	// @Param country query string true "Country"
+	// @Param color1 query string true "Color1"
 	// @Success 200 {object} structs.Team
 	// @Router /api/v1/team/insert [post]
 	g.POST("/team/insert", InsertTeam)
@@ -53,6 +54,7 @@ func defineTeamRoutes(g *echo.Group) {
 	// @Param name query string true "Team Name"
 	// @Param city query string true "City"
 	// @Param country query string true "Country"
+	// @Param color1 query string true "Color1"
 	// @Success 200 {object} structs.Team
 	// @Router /api/v1/team/update [put]
 	g.PUT("/team/update", UpdateTeam)
@@ -147,7 +149,7 @@ func definePlayerRoutes(g *echo.Group) {
 	// @Param city query string true "City"
 	// @Param country query string true "Country"
 	// @Param birth query string true "Birth" example="AAAA-MM-DD"
-	// @Param height query string true "Height"
+	// @Param height query float true "Height"
 	// @Param position query string true "Position"
 	// @Success 200 {object} structs.Player
 	// @Router /api/v1/player/insert [post]
@@ -177,6 +179,7 @@ func definePlayerRoutes(g *echo.Group) {
 	// @Param name query string true "Team Name"
 	// @Param city query string true "City"
 	// @Param country query string true "Country"
+	// @Param height query float true "Height"
 	// @Success 200 {object} structs.Player
 	// @Router /api/v1/player/update [put]
 	g.PUT("/player/update", UpdatePlayer)

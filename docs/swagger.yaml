@@ -8,7 +8,7 @@ definitions:
       country:
         type: string
       height:
-        type: string
+        type: number
       id:
         type: integer
       idteam:
@@ -21,6 +21,8 @@ definitions:
   structs.Team:
     properties:
       city:
+        type: string
+      color1:
         type: string
       country:
         type: string
@@ -397,6 +399,11 @@ paths:
         name: country
         required: true
         type: string
+      - description: Color1
+        in: query
+        name: color1
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -431,6 +438,11 @@ paths:
       - description: Country
         in: query
         name: country
+        required: true
+        type: string
+      - description: Color1
+        in: query
+        name: color1
         required: true
         type: string
       produces:

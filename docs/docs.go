@@ -559,6 +559,13 @@ const docTemplate = `{
                         "name": "country",
                         "in": "query",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Color1",
+                        "name": "color1",
+                        "in": "query",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -612,6 +619,13 @@ const docTemplate = `{
                         "name": "country",
                         "in": "query",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Color1",
+                        "name": "color1",
+                        "in": "query",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -639,7 +653,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "height": {
-                    "type": "string"
+                    "type": "number"
                 },
                 "id": {
                     "type": "integer"
@@ -659,6 +673,9 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "city": {
+                    "type": "string"
+                },
+                "color1": {
                     "type": "string"
                 },
                 "country": {

@@ -12,6 +12,7 @@ type Team struct {
 	Name    string `json:"name"`
 	City    string `json:"city"`
 	Country string `json:"country"`
+	Color1  string `json:"color1"`
 }
 
 // Structure that represents a player
@@ -22,6 +23,6 @@ type Player struct {
 	Country  string    `json:"country"`
 	Birth    time.Time `json:"birth"`
 	IdTeam   int       `json:"idteam"`
-	Height   string    `json:"height"`
+	Height   float64   `json:"height"`
 	Position string    `json:"position"`
 }

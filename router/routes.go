@@ -45,7 +45,7 @@ func GetAllTeams(c echo.Context) error {
 		team := structs.Team{}
 
 		// Preenche o time com os dados da linha
-		err = rows.Scan(&team.Name, &team.City, &team.Country, &team.ID)
+		err = rows.Scan(&team.Name, &team.City, &team.Country, &team.ID, &team.Color1)
 		if err != nil {
 			return c.String(http.StatusInternalServerError, err.Error())
 		}
@@ -85,7 +85,7 @@ func GetAllPlayers(c echo.Context) error {
 	defer db.Close()
 
 	// Executa a consulta SQL
-	rows, err := db.Query("SELECT Name, City, Country, Birth, IdTeam, ID, COALESCE(Height, '0,00') as Height, COALESCE(Position, '') as Position FROM Player")
+	rows, err := db.Query("SELECT Name, City, Country, Birth, IdTeam, ID, COALESCE(Height, '0.00') as Height, COALESCE(Position, '') as Position FROM Player")
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
@@ -138,6 +138,7 @@ func GetAllPlayers(c echo.Context) error {
 // @Param name query string true "Team Name"
 // @Param city query string true "City"
 // @Param country query string true "Country"
+// @Param color1 query string true "Color1"
 // @Success 200 {object} structs.Team
 // @Router /api/v1/team/insert [post]
 func InsertTeam(c echo.Context) error {
@@ -154,9 +155,10 @@ func InsertTeam(c echo.Context) error {
 	name := c.QueryParam("name")
 	city := c.QueryParam("city")
 	country := c.QueryParam("country")
+	color1 := c.QueryParam("color1")
 
 	// Executa a consulta SQL
-	result, err := db.Exec("INSERT INTO Team (name, city, country) VALUES (?, ?, ?)", name, city, country)
+	result, err := db.Exec("INSERT INTO Team (name, city, country, Color1 VALUES (?, ?, ?, ?)", name, city, country, color1)
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
@@ -181,6 +183,7 @@ func InsertTeam(c echo.Context) error {
 // @Param name query string true "Team Name"
 // @Param city query string true "City"
 // @Param country query string true "Country"
+// @Param color1 query string true "Color1"
 // @Success 200 {object} structs.Team
 // @Router /api/v1/team/update [put]
 func UpdateTeam(c echo.Context) error {
@@ -198,9 +201,10 @@ func UpdateTeam(c echo.Context) error {
 	name := c.QueryParam("name")
 	city := c.QueryParam("city")
 	country := c.QueryParam("country")
+	color1 := c.QueryParam("color1")
 
 	// Executa a consulta SQL
-	result, err := db.Exec("UPDATE Team SET name = ?, city = ?, country = ? WHERE id = ?", name, city, country, id)
+	result, err := db.Exec("UPDATE Team SET name = ?, city = ?, country = ?, color1 = ? WHERE id = ?", name, city, country, color1, id)
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
@@ -315,13 +319,13 @@ func GetByIdTeam(c echo.Context) error {
 	id := c.Param("id")
 
 	// Executa a consulta SQL que seleciona o time com o ID informado
-	row := db.QueryRow("SELECT Name, City, Country, ID FROM Team WHERE id = ?", id)
+	row := db.QueryRow("SELECT Name, City, Country, ID, COALESCE(Color1, '') as Color1 FROM Team WHERE id = ?", id)
 
 	// Cria uma variável do tipo Team para armazenar os dados do time
 	var team structs.Team
 
 	// Lê o resultado da consulta e preenche a estrutura do time com os dados obtidos
-	err = row.Scan(&team.Name, &team.City, &team.Country, &team.ID)
+	err = row.Scan(&team.Name, &team.City, &team.Country, &team.ID, &team.Color1)
 	if err != nil {
 		// Lida com o erro
 		return c.String(http.StatusInternalServerError, err.Error())
@@ -360,7 +364,7 @@ func GetByIdPlayer(c echo.Context) error {
 	id := c.Param("id")
 
 	// Execute the SQL query that selects the player with the informed ID
-	row := db.QueryRow("SELECT Name, City, Country, Birth, IdTeam, ID, COALESCE(Height, '0,00') as Height, COALESCE(Position, '') as Position FROM Player WHERE ID = ?", id)
+	row := db.QueryRow("SELECT Name, City, Country, Birth, IdTeam, ID, COALESCE(Height, '0.00') as Height, COALESCE(Position, '') as Position FROM Player WHERE ID = ?", id)
 
 	// Create a variable of type Player to store the player data
 	var player structs.Player
@@ -415,7 +419,7 @@ func GetByIdTeamPlayer(c echo.Context) error {
 	idteam := c.Param("idteam")
 
 	// Executa a consulta SQL que seleciona todos os jogadores do time informado
-	rows, err := db.Query("SELECT Name, City, Country, Birth, IdTeam, ID, COALESCE(Height, '0,00') as Height, COALESCE(Position, '') as Position FROM Player WHERE IdTeam = ?", idteam)
+	rows, err := db.Query("SELECT Name, City, Country, Birth, IdTeam, ID, COALESCE(Height, '0.00') as Height, COALESCE(Position, '') as Position FROM Player WHERE IdTeam = ?", idteam)
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
@@ -540,7 +544,7 @@ func GetByCountryPlayer(c echo.Context) error {
 	country := c.Param("country")
 
 	// Execute the SQL query that selects all players from the informed country
-	rows, err := db.Query("SELECT Name, City, Country, Birth, IdTeam, ID, COALESCE(Height, '0,00') as Height, COALESCE(Position, '') as Position FROM Player WHERE Country = ?", country)
+	rows, err := db.Query("SELECT Name, City, Country, Birth, IdTeam, ID, COALESCE(Height, '0.00') as Height, COALESCE(Position, '') as Position FROM Player WHERE Country = ?", country)
 	if err != nil {
 		// Handle the error
 		return c.String(http.StatusInternalServerError, err.Error())
@@ -606,7 +610,7 @@ func GetTeamsByName(c echo.Context) error {
 	name := c.Param("name")
 
 	// Executa a consulta SQL que seleciona os times com o nome informado
-	rows, err := db.Query("SELECT Name, City, Country, Id FROM Team WHERE name LIKE ?", "%"+name+"%")
+	rows, err := db.Query("SELECT Name, City, Country, Id, COALESCE(Color1, '') as Color1 FROM Team WHERE name LIKE ?", "%"+name+"%")
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
@@ -618,7 +622,7 @@ func GetTeamsByName(c echo.Context) error {
 	// Lê o resultado da consulta e preenche a lista de times com os dados obtidos
 	for rows.Next() {
 		var team structs.Team
-		err = rows.Scan(&team.Name, &team.City, &team.Country, &team.ID)
+		err = rows.Scan(&team.Name, &team.City, &team.Country, &team.ID, &team.Color1)
 		if err != nil {
 			return c.String(http.StatusInternalServerError, err.Error())
 		}
@@ -659,7 +663,7 @@ func GetPlayersByName(c echo.Context) error {
 	name := c.Param("name")
 
 	// Executa a consulta SQL que seleciona os players cujo nome contém o texto informado
-	rows, err := db.Query("SELECT Name, City, Country, Birth, IdTeam, ID, COALESCE(Height, '0,00'), COALESCE(Position, '') as Position FROM Player WHERE name LIKE ?", "%"+name+"%")
+	rows, err := db.Query("SELECT Name, City, Country, Birth, IdTeam, ID, COALESCE(Height, '0.00') as Height, COALESCE(Position, '') as Position FROM Player WHERE name LIKE ?", "%"+name+"%")
 	if err != nil {
 		// Lida com o erro
 		return c.String(http.StatusInternalServerError, err.Error())
