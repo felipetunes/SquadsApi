@@ -15,6 +15,93 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/v1/live/getall": {
+            "get": {
+                "description": "Get all matches",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Live"
+                ],
+                "summary": "Get all matches",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/structs.Live"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/live/getallbyidteam/{id}": {
+            "get": {
+                "description": "Get all matches by team id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Live"
+                ],
+                "summary": "Get all matches by team id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Team ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/structs.Live"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/live/getalltoday": {
+            "get": {
+                "description": "Get all matches today",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Live"
+                ],
+                "summary": "Get all matches today",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/structs.Live"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/player/delete/{id}": {
             "delete": {
                 "description": "Delete a player by ID",
@@ -640,6 +727,35 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "structs.Live": {
+            "type": "object",
+            "properties": {
+                "championship": {
+                    "type": "string"
+                },
+                "datematch": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "stadium": {
+                    "type": "string"
+                },
+                "teamid1": {
+                    "type": "integer"
+                },
+                "teamid2": {
+                    "type": "integer"
+                },
+                "teampoints1": {
+                    "type": "integer"
+                },
+                "teampoints2": {
+                    "type": "integer"
+                }
+            }
+        },
         "structs.Player": {
             "type": "object",
             "properties": {

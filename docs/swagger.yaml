@@ -1,4 +1,23 @@
 definitions:
+  structs.Live:
+    properties:
+      championship:
+        type: string
+      datematch:
+        type: string
+      id:
+        type: integer
+      stadium:
+        type: string
+      teamid1:
+        type: integer
+      teamid2:
+        type: integer
+      teampoints1:
+        type: integer
+      teampoints2:
+        type: integer
+    type: object
   structs.Player:
     properties:
       birth:
@@ -38,6 +57,63 @@ info:
     enter new teams and players, update existing information, and view details.
   title: Squads API
 paths:
+  /api/v1/live/getall:
+    get:
+      consumes:
+      - application/json
+      description: Get all matches
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/structs.Live'
+            type: array
+      summary: Get all matches
+      tags:
+      - Live
+  /api/v1/live/getallbyidteam/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get all matches by team id
+      parameters:
+      - description: Team ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/structs.Live'
+            type: array
+      summary: Get all matches by team id
+      tags:
+      - Live
+  /api/v1/live/getalltoday:
+    get:
+      consumes:
+      - application/json
+      description: Get all matches today
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/structs.Live'
+            type: array
+      summary: Get all matches today
+      tags:
+      - Live
   /api/v1/player/delete/{id}:
     delete:
       consumes:

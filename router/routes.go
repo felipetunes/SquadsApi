@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -127,6 +128,198 @@ func GetAllPlayers(c echo.Context) error {
 
 	// Envia a resposta em JSON
 	return c.JSONBlob(http.StatusOK, playersJSON)
+}
+
+// GetAllLives godoc
+// @Summary Get all matches
+// @Description Get all matches
+// @Tags Live
+// @Accept  json
+// @Produce  json
+// @Success 200 {array} structs.Live
+// @Router /api/v1/live/getall [get]
+func GetAllMatches(c echo.Context) error {
+	// Conecta ao banco de dados
+	db, err := db.ConnectDB()
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	// Certifique-se de que a conexão será fechada no final desta função
+	defer db.Close()
+
+	// Executa a consulta SQL
+	rows, err := db.Query("SELECT * FROM Live")
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	// Cria um slice de partidas ao vivo
+	lives := []structs.Live{}
+
+	// Lê os resultados
+	for rows.Next() {
+		// Cria uma partida ao vivo vazia
+		live := structs.Live{}
+
+		// Preenche a partida ao vivo com os dados da linha
+		err = rows.Scan(&live.ID, &live.IdTeam1, &live.IdTeam2, &live.Championship, &live.DateMatch, &live.Stadium, &live.TeamPoints1, &live.TeamPoints2)
+		if err != nil {
+			return c.String(http.StatusInternalServerError, err.Error())
+		}
+
+		// Adiciona a partida ao vivo ao slice de partidas ao vivo
+		lives = append(lives, live)
+	}
+	// Fecha o conjunto de resultados
+	rows.Close()
+
+	// Converte as partidas ao vivo em JSON
+	livesJSON, err := json.Marshal(lives)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	// Envia a resposta em JSON
+	return c.JSONBlob(http.StatusOK, livesJSON)
+}
+
+// GetAllByIdTeam godoc
+// @Summary Get all matches by team id
+// @Description Get all matches by team id
+// @Tags Live
+// @Accept  json
+// @Produce  json
+// @Param id path int true "Team ID"
+// @Success 200 {array} structs.Live
+// @Router /api/v1/live/getallbyidteam/{id} [get]
+func GetAllByIdTeam(c echo.Context) error {
+	// Conecta ao banco de dados
+	db, err := db.ConnectDB()
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	// Certifique-se de que a conexão será fechada no final desta função
+	defer db.Close()
+
+	// Obtém o IdTeam do parâmetro de rota
+	idTeam, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+
+	// Prepara a consulta SQL
+	stmt, err := db.Prepare("SELECT * FROM Live WHERE IdTeam1 = ? OR IdTeam2 = ?")
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	// Executa a consulta SQL
+	rows, err := stmt.Query(idTeam, idTeam)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	// Cria um slice de partidas ao vivo
+	lives := []structs.Live{}
+
+	// Lê os resultados
+	for rows.Next() {
+		// Cria uma partida ao vivo vazia
+		live := structs.Live{}
+
+		// Preenche a partida ao vivo com os dados da linha
+		err = rows.Scan(&live.ID, &live.IdTeam1, &live.IdTeam2, &live.Championship, &live.DateMatch, &live.Stadium, &live.TeamPoints1, &live.TeamPoints2)
+		if err != nil {
+			return c.String(http.StatusInternalServerError, err.Error())
+		}
+
+		// Adiciona a partida ao vivo ao slice de partidas ao vivo
+		lives = append(lives, live)
+	}
+	// Fecha o conjunto de resultados
+	rows.Close()
+
+	// Converte as partidas ao vivo em JSON
+	livesJSON, err := json.Marshal(lives)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	// Envia a resposta em JSON
+	return c.JSONBlob(http.StatusOK, livesJSON)
+}
+
+// GetAllLives godoc
+// @Summary Get all matches today
+// @Description Get all matches today
+// @Tags Live
+// @Accept  json
+// @Produce  json
+// @Success 200 {array} structs.Live
+// @Router /api/v1/live/getalltoday [get]
+func GetAllLivesToday(c echo.Context) error {
+
+	// Conecta ao banco de dados
+	db, err := db.ConnectDB()
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	// Certifique-se de que a conexão será fechada no final desta função
+	defer db.Close()
+
+	// Obtém o valor do CURDATE()
+	var curDate string
+	err = db.QueryRow("SELECT CURDATE()").Scan(&curDate)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	// Executa a consulta SQL
+	rows, err := db.Query("SELECT ID, IdTeam1, IdTeam2, Championship, DATE_FORMAT(DateMatch, '%Y-%m-%d %H:%i:%s') as DateMatch, Stadium, TeamPoints1, TeamPoints2 FROM Live WHERE DATE(DateMatch) = CURDATE()")
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	// Cria um slice de partidas ao vivo
+	lives := []structs.Live{}
+
+	// Lê os resultados
+	for rows.Next() {
+		// Cria uma partida ao vivo vazia
+		live := structs.Live{}
+
+		// Cria uma variável para armazenar a data e hora como string
+		var dateMatch string
+
+		// Preenche a partida ao vivo com os dados da linha
+		err = rows.Scan(&live.ID, &live.IdTeam1, &live.IdTeam2, &live.Championship, &dateMatch, &live.Stadium, &live.TeamPoints1, &live.TeamPoints2)
+		if err != nil {
+			return c.String(http.StatusInternalServerError, err.Error())
+		}
+
+		// Converte a string de data e hora para time.Time
+		live.DateMatch, err = time.Parse("2006-01-02 15:04:05", dateMatch)
+		if err != nil {
+			return c.String(http.StatusInternalServerError, err.Error())
+		}
+
+		// Adiciona a partida ao vivo ao slice de partidas ao vivo
+		lives = append(lives, live)
+	}
+	// Fecha o conjunto de resultados
+	rows.Close()
+
+	// Converte as partidas ao vivo em JSON
+	livesJSON, err := json.Marshal(lives)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	// Envia a resposta em JSON
+	return c.JSONBlob(http.StatusOK, livesJSON)
 }
 
 // InsertTeam godoc

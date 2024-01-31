@@ -29,6 +29,12 @@ func ConnectDB() (*sql.DB, error) {
 		return nil, err
 	}
 
+	// Define o fuso horário para São Paulo
+	_, err = db.Exec("SET time_zone = 'America/Sao_Paulo'")
+	if err != nil {
+		return nil, err
+	}
+
 	// Retorna a conexão como resultado
 	return db, nil
 }

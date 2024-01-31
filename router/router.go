@@ -16,10 +16,40 @@ func Initialize() {
 	// Define as rotas da aplicação
 	defineTeamRoutes(apiV1)
 	definePlayerRoutes(apiV1)
+	defineLiveRoutes(apiV1)
 
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
 	// Inicia o servidor na porta 8080
 	e.Logger.Fatal(e.Start(":8080"))
+}
+
+func defineLiveRoutes(g *echo.Group) {
+	// @Summary Obter todos os jogos ao vivo
+	// @Description Obter todos os jogos
+	// @Tags Live
+	// @Accept  json
+	// @Produce  json
+	// @Success 200 {array} structs.Live
+	// @Router /api/v1/live/getall [get]
+	g.GET("/live/getall", GetAllMatches)
+
+	// @Summary Obter todos os jogos do dia
+	// @Description Obter todos os jogos do dia
+	// @Tags Live
+	// @Accept  json
+	// @Produce  json
+	// @Success 200 {array} structs.Live
+	// @Router /api/v1/live/getalltoday [get]
+	g.GET("/live/getalltoday", GetAllLivesToday)
+
+	// @Summary Obter todos os jogos de um time especifico
+	// @Description Obter todos os jogos de um time especifico
+	// @Tags Live
+	// @Accept  json
+	// @Produce  json
+	// @Success 200 {array} structs.Live
+	// @Router /api/v1/live/getallbyidteam [get]
+	g.GET("/live/getallbyidteam", GetAllByIdTeam)
 }
 
 func defineTeamRoutes(g *echo.Group) {
