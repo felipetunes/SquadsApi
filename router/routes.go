@@ -139,6 +139,7 @@ func GetAllPlayers(c echo.Context) error {
 // @Success 200 {array} structs.Live
 // @Router /api/v1/live/getall [get]
 func GetAllMatches(c echo.Context) error {
+	var dateMatch string
 	// Conecta ao banco de dados
 	db, err := db.ConnectDB()
 	if err != nil {
@@ -159,16 +160,15 @@ func GetAllMatches(c echo.Context) error {
 
 	// Lê os resultados
 	for rows.Next() {
-		// Cria uma partida ao vivo vazia
 		live := structs.Live{}
-
-		// Preenche a partida ao vivo com os dados da linha
-		err = rows.Scan(&live.ID, &live.IdTeam1, &live.IdTeam2, &live.Championship, &live.DateMatch, &live.Stadium, &live.TeamPoints1, &live.TeamPoints2)
+		err = rows.Scan(&live.ID, &live.IdTeam1, &live.IdTeam2, &live.Championship, &dateMatch, &live.Stadium, &live.TeamPoints1, &live.TeamPoints2)
 		if err != nil {
 			return c.String(http.StatusInternalServerError, err.Error())
 		}
-
-		// Adiciona a partida ao vivo ao slice de partidas ao vivo
+		live.DateMatch, err = time.Parse("2006-01-02 15:04:05", dateMatch)
+		if err != nil {
+			return c.String(http.StatusInternalServerError, err.Error())
+		}
 		lives = append(lives, live)
 	}
 	// Fecha o conjunto de resultados
@@ -190,10 +190,12 @@ func GetAllMatches(c echo.Context) error {
 // @Tags Live
 // @Accept  json
 // @Produce  json
-// @Param id path int true "Team ID"
+// @Param id path string true "Team ID"
 // @Success 200 {array} structs.Live
 // @Router /api/v1/live/getallbyidteam/{id} [get]
 func GetAllByIdTeam(c echo.Context) error {
+	var dateMatch string
+
 	// Conecta ao banco de dados
 	db, err := db.ConnectDB()
 	if err != nil {
@@ -226,20 +228,23 @@ func GetAllByIdTeam(c echo.Context) error {
 
 	// Lê os resultados
 	for rows.Next() {
-		// Cria uma partida ao vivo vazia
 		live := structs.Live{}
+		err = rows.Scan(&live.ID, &live.IdTeam1, &live.IdTeam2, &live.Championship, &dateMatch, &live.Stadium, &live.TeamPoints1, &live.TeamPoints2)
+		live.DateMatch, err = time.Parse("2006-01-02 15:04:05", dateMatch)
 
-		// Preenche a partida ao vivo com os dados da linha
-		err = rows.Scan(&live.ID, &live.IdTeam1, &live.IdTeam2, &live.Championship, &live.DateMatch, &live.Stadium, &live.TeamPoints1, &live.TeamPoints2)
 		if err != nil {
 			return c.String(http.StatusInternalServerError, err.Error())
 		}
 
-		// Adiciona a partida ao vivo ao slice de partidas ao vivo
 		lives = append(lives, live)
 	}
 	// Fecha o conjunto de resultados
 	rows.Close()
+
+	// Verifica se o slice de partidas ao vivo está vazio
+	if len(lives) == 0 {
+		return echo.NewHTTPError(http.StatusNotFound, "Não há jogos encontrados")
+	}
 
 	// Converte as partidas ao vivo em JSON
 	livesJSON, err := json.Marshal(lives)

@@ -56,7 +56,7 @@ const docTemplate = `{
                 "summary": "Get all matches by team id",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "description": "Team ID",
                         "name": "id",
                         "in": "path",

@@ -48,8 +48,8 @@ func defineLiveRoutes(g *echo.Group) {
 	// @Accept  json
 	// @Produce  json
 	// @Success 200 {array} structs.Live
-	// @Router /api/v1/live/getallbyidteam [get]
-	g.GET("/live/getallbyidteam", GetAllByIdTeam)
+	// @Router /api/v1/live/getallbyidteam/:id  [get]
+	g.GET("/live/getallbyidteam/:id", GetAllByIdTeam)
 }
 
 func defineTeamRoutes(g *echo.Group) {
