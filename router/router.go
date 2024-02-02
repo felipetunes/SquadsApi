@@ -4,11 +4,22 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/labstack/echo/v4"
 	echoSwagger "github.com/swaggo/echo-swagger"
+
+	"net/http"
+
+	"github.com/rs/cors"
 )
 
 func Initialize() {
 	// Cria uma nova instância do Echo
 	e := echo.New()
+
+	// Configura o CORS
+	c := cors.New(cors.Options{
+		AllowedOrigins: []string{"https://localhost:7299"},
+	})
+
+	handler := c.Handler(e)
 
 	// Cria um grupo de rotas com o prefixo api/v1
 	apiV1 := e.Group("api/v1")
@@ -19,8 +30,9 @@ func Initialize() {
 	defineLiveRoutes(apiV1)
 
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
+
 	// Inicia o servidor na porta 8080
-	e.Logger.Fatal(e.Start(":8080"))
+	e.Logger.Fatal(http.ListenAndServe(":8080", handler))
 }
 
 func defineLiveRoutes(g *echo.Group) {
@@ -67,12 +79,29 @@ func defineLiveRoutes(g *echo.Group) {
 	// @Router /api/v1/live/insert [post]
 	g.POST("/live/insert", InsertLive)
 
+	// @Summary Atualizar uma partida ao vivo
+	// @Description Atualizar uma partida ao vivo
+	// @Tags Live
+	// @Accept  json
+	// @Produce  json
+	// @Param id query int true "Live ID"
+	// @Param teamid1 query int true "Team ID 1"
+	// @Param teamid2 query int true "Team ID 2"
+	// @Param idchampionship query int true "IdChampionship"
+	// @Param datematch query string true "Date of Match"
+	// @Param stadium query string true "Stadium"
+	// @Param teampoints1 query int true "Team Points 1"
+	// @Param teampoints2 query int true "Team Points 2"
+	// @Success 200 {object} structs.Live
+	// @Router /api/v1/live/update [put]
+	g.PUT("/live/update", UpdateLive)
+
 }
 
 func defineTeamRoutes(g *echo.Group) {
 	// @Summary Obter todos os times
 	// @Description Obter todos os times
-	// @Tags times
+	// @Tags Teams
 	// @Accept  json
 	// @Produce  json
 	// @Success 200 {array} structs.Team
@@ -81,7 +110,7 @@ func defineTeamRoutes(g *echo.Group) {
 
 	// @Summary Inserir um time
 	// @Description Inserir um time
-	// @Tags times
+	// @Tags Teams
 	// @Accept  json
 	// @Produce  json
 	// @Param name query string true "Team Name"
@@ -94,7 +123,7 @@ func defineTeamRoutes(g *echo.Group) {
 
 	// @Summary Atualizar um time
 	// @Description Atualizar um time
-	// @Tags times
+	// @Tags Teams
 	// @Accept  json
 	// @Produce  json
 	// @Param id team query int true "ID Team"
@@ -106,19 +135,9 @@ func defineTeamRoutes(g *echo.Group) {
 	// @Router /api/v1/team/update [put]
 	g.PUT("/team/update", UpdateTeam)
 
-	// @Summary Delete a player by ID
-	// @Description Delete a player by ID
-	// @Tags Players
-	// @Accept  json
-	// @Produce  json
-	// @Param id path string true "Player ID"
-	// @Success 200 {object} string
-	// @Router /api/v1/player/delete/{id} [delete]
-	g.DELETE("/player/delete/:id", DeletePlayer)
-
 	// @Summary Delete a team by ID
 	// @Description Delete a team by ID
-	// @Tags Team
+	// @Tags Teams
 	// @Accept  json
 	// @Produce  json
 	// @Param id path string true "ID Team"
@@ -128,7 +147,7 @@ func defineTeamRoutes(g *echo.Group) {
 
 	// @Summary Obter um time por ID
 	// @Description Obter um time por ID
-	// @Tags times
+	// @Tags Teams
 	// @Accept  json
 	// @Produce  json
 	// @Success 200 {object} structs.Team
@@ -137,7 +156,7 @@ func defineTeamRoutes(g *echo.Group) {
 
 	// @Summary Obter um time por nome
 	// @Description Obter um time por nome
-	// @Tags times
+	// @Tags Teams
 	// @Accept  json
 	// @Produce  json
 	// @Success 200 {object} structs.Team
@@ -146,12 +165,23 @@ func defineTeamRoutes(g *echo.Group) {
 
 	// @Summary Obter um time por país
 	// @Description Obter um time por país
-	// @Tags times
+	// @Tags Teams
 	// @Accept  json
 	// @Produce  json
 	// @Success 200 {object} structs.Team
 	// @Router /api/v1/team/getbycountry/{country} [get]
 	g.GET("/team/getbycountry/:country", GetByCountryTeam)
+
+	// @Summary Get teams by championship
+	// @Description Get teams by a given championship ID
+	// @Tags Teams
+	// @Accept  json
+	// @Produce  json
+	// @Param id path int true "ID Championship"
+	// @Success 200 {array} structs.Team
+	// @Router /api/v1/team/getbychampionship/{id} [get]
+	g.GET("/team/getbychampionship/:id", GetByChampionship)
+
 }
 
 // @title API de Times e Jogadores
@@ -168,6 +198,16 @@ func definePlayerRoutes(g *echo.Group) {
 	// @Success 200 {array} structs.Player
 	// @Router /api/v1/player/getall [get]
 	g.GET("/player/getall", GetAllPlayers)
+
+	// @Summary Delete a player by ID
+	// @Description Delete a player by ID
+	// @Tags Players
+	// @Accept  json
+	// @Produce  json
+	// @Param id path string true "Player ID"
+	// @Success 200 {object} string
+	// @Router /api/v1/player/delete/{id} [delete]
+	g.DELETE("/player/delete/:id", DeletePlayer)
 
 	// @Summary Obter um jogador por nome
 	// @Description Obter um player por nome

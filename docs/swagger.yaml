@@ -165,6 +165,62 @@ paths:
       summary: Insert a live match
       tags:
       - Live
+  /api/v1/live/update:
+    put:
+      consumes:
+      - application/json
+      description: Update a live match
+      parameters:
+      - description: Live ID
+        in: query
+        name: id
+        required: true
+        type: integer
+      - description: Team ID 1
+        in: query
+        name: idteam1
+        required: true
+        type: integer
+      - description: Team ID 2
+        in: query
+        name: idteam2
+        required: true
+        type: integer
+      - description: IdChampionship
+        in: query
+        name: idchampionship
+        required: true
+        type: integer
+      - description: Date of Match
+        in: query
+        name: datematch
+        required: true
+        type: string
+      - description: Stadium
+        in: query
+        name: stadium
+        required: true
+        type: string
+      - description: Team Points 1
+        in: query
+        name: teampoints1
+        required: true
+        type: integer
+      - description: Team Points 2
+        in: query
+        name: teampoints2
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/structs.Live'
+      summary: Update a live match
+      tags:
+      - Live
   /api/v1/player/delete/{id}:
     delete:
       consumes:
@@ -438,6 +494,29 @@ paths:
       summary: Get all teams
       tags:
       - Teams
+  /api/v1/team/getbychampionship/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get teams by a given championship ID
+      parameters:
+      - description: ID Championship
+        in: query
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/structs.Team'
+            type: array
+      summary: Get teams by championship
+      tags:
+      - Team
   /api/v1/team/getbycountry/{country}:
     get:
       consumes:

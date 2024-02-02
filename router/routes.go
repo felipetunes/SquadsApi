@@ -9,8 +9,12 @@ import (
 	"strconv"
 	"time"
 
+	"database/sql"
+
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/labstack/echo/v4"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
 // GetAllTeams godoc
@@ -32,7 +36,7 @@ func GetAllTeams(c echo.Context) error {
 	defer db.Close()
 
 	// Executa a consulta SQL
-	rows, err := db.Query("SELECT * FROM Team")
+	rows, err := db.Query("SELECT Name, City, Country, ID, COALESCE(Color1, '') as Color1 FROM Team ORDER BY Name")
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
@@ -86,7 +90,7 @@ func GetAllPlayers(c echo.Context) error {
 	defer db.Close()
 
 	// Executa a consulta SQL
-	rows, err := db.Query("SELECT Name, City, Country, Birth, IdTeam, ID, COALESCE(Height, '0.00') as Height, COALESCE(Position, '') as Position FROM Player")
+	rows, err := db.Query("SELECT Name, City, Country, Birth, IdTeam, ID, COALESCE(Height, '0.00') as Height, COALESCE(Position, '') as Position FROM Player ORDER BY Name")
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
@@ -150,7 +154,7 @@ func GetAllMatches(c echo.Context) error {
 	defer db.Close()
 
 	// Executa a consulta SQL
-	rows, err := db.Query("SELECT * FROM Live")
+	rows, err := db.Query("SELECT * FROM Live ORDER BY DateMatch")
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
@@ -283,7 +287,7 @@ func GetAllLivesToday(c echo.Context) error {
 	}
 
 	// Executa a consulta SQL
-	rows, err := db.Query("SELECT ID, IdTeam1, IdTeam2, IdChampionship, DATE_FORMAT(DateMatch, '%Y-%m-%d %H:%i:%s') as DateMatch, Stadium, TeamPoints1, TeamPoints2 FROM Live WHERE DATE(DateMatch) = CURDATE()")
+	rows, err := db.Query("SELECT ID, IdTeam1, IdTeam2, IdChampionship, DATE_FORMAT(DateMatch, '%Y-%m-%d %H:%i:%s') as DateMatch, Stadium, TeamPoints1, TeamPoints2 FROM Live WHERE DATE(DateMatch) = CURDATE() ORDER BY DateMatch")
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
@@ -388,6 +392,71 @@ func InsertLive(c echo.Context) error {
 
 	// Envia a resposta
 	return c.String(http.StatusOK, "Partida ao vivo inserida com sucesso.")
+}
+
+// UpdateLive godoc
+// @Summary Update a live match
+// @Description Update a live match
+// @Tags Live
+// @Accept  json
+// @Produce  json
+// @Param id query int true "Live ID"
+// @Param idteam1 query int true "Team ID 1"
+// @Param idteam2 query int true "Team ID 2"
+// @Param idchampionship query int true "IdChampionship"
+// @Param datematch query string true "Date of Match"
+// @Param stadium query string true "Stadium"
+// @Param teampoints1 query int true "Team Points 1"
+// @Param teampoints2 query int true "Team Points 2"
+// @Success 200 {object} structs.Live
+// @Router /api/v1/live/update [put]
+func UpdateLive(c echo.Context) error {
+	// Conecta ao banco de dados
+	db, err := db.ConnectDB()
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	// Certifique-se de que a conexão será fechada no final desta função
+	defer db.Close()
+
+	// Obtém os dados da partida ao vivo da URL
+	id, _ := strconv.Atoi(c.QueryParam("id"))
+	idteam1, _ := strconv.Atoi(c.QueryParam("idteam1"))
+	idteam2, _ := strconv.Atoi(c.QueryParam("idteam2"))
+	idchampionship, _ := strconv.Atoi(c.QueryParam("idchampionship"))
+	datematch := c.QueryParam("datematch")
+	stadium := c.QueryParam("stadium")
+	teampoints1, _ := strconv.Atoi(c.QueryParam("teampoints1"))
+	teampoints2, _ := strconv.Atoi(c.QueryParam("teampoints2"))
+
+	// Converte a string datematch para o tipo time.Time
+	layout := "02/01/2006 15:04"
+	parsedDate, err := time.Parse(layout, datematch)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	// Cria um novo struct Live com os dados obtidos
+	live := structs.Live{
+		ID:             id,
+		IdTeam1:        idteam1,
+		IdTeam2:        idteam2,
+		IdChampionship: idchampionship,
+		DateMatch:      parsedDate,
+		Stadium:        stadium,
+		TeamPoints1:    teampoints1,
+		TeamPoints2:    teampoints2,
+	}
+
+	// Executa a consulta SQL
+	_, err = db.Exec("UPDATE Live SET idteam1 = ?, idteam2 = ?, idchampionship = ?, datematch = ?, stadium = ?, teampoints1 = ?, teampoints2 = ? WHERE id = ?", live.IdTeam1, live.IdTeam2, live.IdChampionship, live.DateMatch, live.Stadium, live.TeamPoints1, live.TeamPoints2, live.ID)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	// Envia a resposta
+	return c.String(http.StatusOK, "Partida atualizada com sucesso.")
 }
 
 // InsertTeam godoc
@@ -980,7 +1049,7 @@ func GetPlayersByName(c echo.Context) error {
 // @Param idteam query string true "Id Team"
 // @Param city query string true "City"
 // @Param country query string true "Country"
-// @Param birth query string true "Birth" example="AAAA-MM-DD"
+// @Param birth query string true "Birth" example="DD-MM-YYYY"
 // @Param height query string true "Height"
 // @Param position query string true "Position"
 // @Success 200 {object} structs.Player
@@ -1005,13 +1074,16 @@ func InsertPlayer(c echo.Context) error {
 	position := c.QueryParam("position")
 
 	// Converte a string de data de nascimento para o tipo date
-	birthDate, err := time.Parse("2006-01-02", birth)
+	birthDate, err := time.Parse("02/01/2006", birth)
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
 
+	// Formata a data de nascimento para o formato aceito pelo MySQL
+	formattedBirthDate := birthDate.Format("2006-01-02")
+
 	// Execute the SQL query
-	result, err := db.Exec("INSERT INTO Player (Name, IdTeam, City, Country, Birth, Height, Position) VALUES (?, ?, ?, ?, ?, ?, ?)", name, idteam, city, country, birthDate, height, position)
+	result, err := db.Exec("INSERT INTO Player (Name, IdTeam, City, Country, Birth, Height, Position) VALUES (?, ?, ?, ?, ?, ?, ?)", name, idteam, city, country, formattedBirthDate, height, position)
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
@@ -1037,7 +1109,7 @@ func InsertPlayer(c echo.Context) error {
 // @Param idteam query int true "Id Team"
 // @Param city query string true "City"
 // @Param country query string true "Country"
-// @Param birth query string true "Birth" example="AAAA-MM-DD"
+// @Param birth query string true "Birth" example="DD-MM-AAAA"
 // @Param height query string true "Height"
 // @Param position query string true "Position"
 // @Success 200 {object} structs.Player
@@ -1062,14 +1134,17 @@ func UpdatePlayer(c echo.Context) error {
 	// Converte a string de data de nascimento para o tipo date
 	var birthDate time.Time
 	if birth != "" {
-		birthDate, err = time.Parse("2006-01-02", birth)
+		birthDate, err = time.Parse("02/01/2006", birth)
 		if err != nil {
 			return c.String(http.StatusInternalServerError, err.Error())
 		}
 	}
 
+	// Formata a data de nascimento para o formato aceito pelo MySQL
+	formattedBirthDate := birthDate.Format("2006-01-02")
+
 	// Executa a consulta SQL
-	result, err := db.Exec("UPDATE Player SET name = ?, city = ?, country = ?, birth = ?, idteam = ?, height = ?, position = ? WHERE id = ?", name, city, country, birthDate, idteam, height, position, id)
+	result, err := db.Exec("UPDATE Player SET name = ?, city = ?, country = ?, birth = ?, idteam = ?, height = ?, position = ? WHERE id = ?", name, city, country, formattedBirthDate, idteam, height, position, id)
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
@@ -1085,4 +1160,58 @@ func UpdatePlayer(c echo.Context) error {
 
 	// Envia a resposta com o número de linhas afetadas
 	return c.String(http.StatusOK, fmt.Sprintf("%d linha(s) afetada(s)", rows))
+}
+
+// GetByChampionship godoc
+// @Summary Get teams by championship
+// @Description Get teams by a given championship ID
+// @Tags Team
+// @Accept  json
+// @Produce  json
+// @Param id query int true "ID Championship"
+// @Success 200 {array} structs.Team
+// @Router /api/v1/team/getbychampionship/{id} [get]
+func GetByChampionship(c echo.Context) error {
+	// Conecta ao banco de dados
+	db, err := db.ConnectDB()
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	// Obtém o IdChampionship da URL
+	idChampionship := c.Param("id")
+	// Consulta para obter todos os IdTeam associados ao IdChampionship
+	rows, err := db.Query("SELECT IdTeam FROM TeamChampionships WHERE IdChampionship = ?", idChampionship)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+	defer rows.Close()
+
+	var teams []structs.Team
+	for rows.Next() {
+		var idTeam int
+		err := rows.Scan(&idTeam)
+		if err != nil {
+			return c.String(http.StatusInternalServerError, err.Error())
+		}
+
+		// Consulta para obter a equipe com o IdTeam
+		var team structs.Team
+		err = db.QueryRow("SELECT Name, City, Country, ID, COALESCE(Color1, '') FROM Team WHERE id = ?", idTeam).Scan(&team.Name, &team.City, &team.Country, &team.ID, &team.Color1)
+		if err != nil {
+			if err == sql.ErrNoRows {
+				fmt.Println("No team found with the given id.")
+			} else {
+				return c.String(http.StatusInternalServerError, err.Error())
+			}
+		}
+
+		teams = append(teams, team)
+	}
+
+	// Certifique-se de que a conexão será fechada no final desta função
+	defer db.Close()
+
+	// Envia a resposta com as equipes encontradas
+	return c.JSON(http.StatusOK, teams)
 }

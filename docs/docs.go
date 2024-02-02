@@ -176,6 +176,87 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/live/update": {
+            "put": {
+                "description": "Update a live match",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Live"
+                ],
+                "summary": "Update a live match",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Live ID",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Team ID 1",
+                        "name": "idteam1",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Team ID 2",
+                        "name": "idteam2",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "IdChampionship",
+                        "name": "idchampionship",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Date of Match",
+                        "name": "datematch",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Stadium",
+                        "name": "stadium",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Team Points 1",
+                        "name": "teampoints1",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Team Points 2",
+                        "name": "teampoints2",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/structs.Live"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/player/delete/{id}": {
             "delete": {
                 "description": "Delete a player by ID",
@@ -571,6 +652,41 @@ const docTemplate = `{
                     "Teams"
                 ],
                 "summary": "Get all teams",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/structs.Team"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/team/getbychampionship/{id}": {
+            "get": {
+                "description": "Get teams by a given championship ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Team"
+                ],
+                "summary": "Get teams by championship",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID Championship",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
