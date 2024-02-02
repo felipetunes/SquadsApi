@@ -50,6 +50,23 @@ func defineLiveRoutes(g *echo.Group) {
 	// @Success 200 {array} structs.Live
 	// @Router /api/v1/live/getallbyidteam/:id  [get]
 	g.GET("/live/getallbyidteam/:id", GetAllByIdTeam)
+
+	// @Summary Inserir uma partida ao vivo
+	// @Description Inserir uma partida ao vivo
+	// @Tags Live
+	// @Accept  json
+	// @Produce  json
+	// @Param teamid1 query int true "Team ID 1"
+	// @Param teamid2 query int true "Team ID 2"
+	// @Param idchampionship query int true "IdChampionship"
+	// @Param datematch query string true "Date of Match"
+	// @Param stadium query string true "Stadium"
+	// @Param teampoints1 query int true "Team Points 1"
+	// @Param teampoints2 query int true "Team Points 2"
+	// @Success 200 {object} structs.Live
+	// @Router /api/v1/live/insert [post]
+	g.POST("/live/insert", InsertLive)
+
 }
 
 func defineTeamRoutes(g *echo.Group) {

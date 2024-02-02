@@ -28,12 +28,12 @@ type Player struct {
 }
 
 type Live struct {
-	ID           int       `json:"id"`
-	IdTeam1      int       `json:"teamid1"`
-	IdTeam2      int       `json:"teamid2"`
-	Championship string    `json:"championship"`
-	DateMatch    time.Time `json:"datematch"`
-	Stadium      string    `json:"stadium"`
-	TeamPoints1  int       `json:"teampoints1"`
-	TeamPoints2  int       `json:"teampoints2"`
+	ID             int       `json:"id"`
+	IdTeam1        int       `json:"teamid1"`
+	IdTeam2        int       `json:"teamid2"`
+	IdChampionship int       `json:"idchampionship"`
+	DateMatch      time.Time `json:"datematch"`
+	Stadium        string    `json:"stadium"`
+	TeamPoints1    int       `json:"teampoints1"`
+	TeamPoints2    int       `json:"teampoints2"`
 }

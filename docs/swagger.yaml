@@ -1,11 +1,11 @@
 definitions:
   structs.Live:
     properties:
-      championship:
-        type: string
       datematch:
         type: string
       id:
+        type: integer
+      idchampionship:
         type: integer
       stadium:
         type: string
@@ -112,6 +112,57 @@ paths:
               $ref: '#/definitions/structs.Live'
             type: array
       summary: Get all matches today
+      tags:
+      - Live
+  /api/v1/live/insert:
+    post:
+      consumes:
+      - application/json
+      description: Insert a live match
+      parameters:
+      - description: Team ID 1
+        in: query
+        name: idteam1
+        required: true
+        type: integer
+      - description: Team ID 2
+        in: query
+        name: idteam2
+        required: true
+        type: integer
+      - description: IdChampionship
+        in: query
+        name: idchampionship
+        required: true
+        type: integer
+      - description: Date of Match
+        in: query
+        name: datematch
+        required: true
+        type: string
+      - description: Stadium
+        in: query
+        name: stadium
+        required: true
+        type: string
+      - description: Team Points 1
+        in: query
+        name: teampoints1
+        required: true
+        type: integer
+      - description: Team Points 2
+        in: query
+        name: teampoints2
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/structs.Live'
+      summary: Insert a live match
       tags:
       - Live
   /api/v1/player/delete/{id}:
