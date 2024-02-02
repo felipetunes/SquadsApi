@@ -4,9 +4,9 @@
 
 This repository contains an API developed in Go that provides information about football teams around the world and many players who are part of these teams. The API uses the Echo framework for routing and a MySQL database hosted on Amazon RDS.
 
-!MySQL
-!GoLand
-!AWS
+![MySQL](https://img.shields.io/badge/mysql-%2300f.svg?style=for-the-badge&logo=mysql&logoColor=white)
+![GoLand](https://img.shields.io/badge/GoLand-0f0f0f?&style=for-the-badge&logo=goland&logoColor=white)
+![AWS](https://img.shields.io/badge/AWS-%23FF9900.svg?style=for-the-badge&logo=amazon-aws&logoColor=white)
 
 ## Index
 
