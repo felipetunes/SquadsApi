@@ -28,6 +28,7 @@ func Initialize() {
 	defineTeamRoutes(apiV1)
 	definePlayerRoutes(apiV1)
 	defineLiveRoutes(apiV1)
+	defineUserRoutes(apiV1)
 
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
 
@@ -35,7 +36,33 @@ func Initialize() {
 	e.Logger.Fatal(http.ListenAndServe(":8080", handler))
 }
 
+func defineUserRoutes(g *echo.Group) {
+
+	// @Summary Login user
+	// @Description Login user
+	// @Tags User
+	// @Accept  json
+	// @Produce  json
+	// @Param username query string true "Username"
+	// @Param password query string true "Password"
+	// @Success 200 {object} structs.User
+	// @Router /api/v1/user/login [post]
+	g.POST("/user/login", Login)
+
+	// @Summary Register user
+	// @Description Register user
+	// @Tags User
+	// @Accept  json
+	// @Produce  json
+	// @Param username query string true "Username"
+	// @Param password query string true "Password"
+	// @Success 200 {object} structs.User
+	// @Router /api/v1/user/register [post]
+	g.POST("/user/register", Register)
+}
+
 func defineLiveRoutes(g *echo.Group) {
+
 	// @Summary Obter todos os jogos ao vivo
 	// @Description Obter todos os jogos
 	// @Tags Live

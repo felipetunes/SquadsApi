@@ -7,12 +7,12 @@ definitions:
         type: integer
       idchampionship:
         type: integer
+      idteam1:
+        type: integer
+      idteam2:
+        type: integer
       stadium:
         type: string
-      teamid1:
-        type: integer
-      teamid2:
-        type: integer
       teampoints1:
         type: integer
       teampoints2:
@@ -48,6 +48,15 @@ definitions:
       id:
         type: integer
       name:
+        type: string
+    type: object
+  structs.User:
+    properties:
+      id:
+        type: integer
+      password:
+        type: string
+      username:
         type: string
     type: object
 host: localhost:8080
@@ -661,6 +670,58 @@ paths:
       summary: Update a team
       tags:
       - Teams
+  /api/v1/user/login:
+    post:
+      consumes:
+      - application/json
+      description: Login user
+      parameters:
+      - description: Username
+        in: query
+        name: username
+        required: true
+        type: string
+      - description: Password
+        in: query
+        name: password
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/structs.User'
+      summary: Login user
+      tags:
+      - User
+  /api/v1/user/register:
+    post:
+      consumes:
+      - application/json
+      description: Register user
+      parameters:
+      - description: Username
+        in: query
+        name: username
+        required: true
+        type: string
+      - description: Password
+        in: query
+        name: password
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/structs.User'
+      summary: Register user
+      tags:
+      - User
 schemes:
 - http
 swagger: "2.0"

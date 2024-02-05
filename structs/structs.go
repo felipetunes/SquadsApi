@@ -27,13 +27,21 @@ type Player struct {
 	Position string    `json:"position"`
 }
 
+// Structure that represents a live
 type Live struct {
 	ID             int       `json:"id"`
-	IdTeam1        int       `json:"teamid1"`
-	IdTeam2        int       `json:"teamid2"`
+	IdTeam1        int       `json:"idteam1"`
+	IdTeam2        int       `json:"idteam2"`
 	IdChampionship int       `json:"idchampionship"`
 	DateMatch      time.Time `json:"datematch"`
 	Stadium        string    `json:"stadium"`
 	TeamPoints1    int       `json:"teampoints1"`
 	TeamPoints2    int       `json:"teampoints2"`
+}
+
+// Structure that represents a user
+type User struct {
+	ID       int    `json:"id"`
+	Username string `json:"username"`
+	Password string `json:"password"`
 }

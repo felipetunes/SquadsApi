@@ -13,6 +13,7 @@ import (
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/labstack/echo/v4"
+	"golang.org/x/crypto/bcrypt"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -186,6 +187,111 @@ func GetAllMatches(c echo.Context) error {
 
 	// Envia a resposta em JSON
 	return c.JSONBlob(http.StatusOK, livesJSON)
+}
+
+// User godoc
+// @Summary Login user
+// @Description Login user
+// @Tags User
+// @Accept  json
+// @Produce  json
+// @Param   username     query    string     true        "Username"
+// @Param   password     query    string     true        "Password"
+// @Success 200 {object} structs.User
+// @Router /api/v1/user/login [post]
+func Login(c echo.Context) error {
+	// Conecta ao banco de dados
+	db, err := db.ConnectDB()
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	// Certifique-se de que a conexão será fechada no final desta função
+	defer db.Close()
+
+	// Pega o nome de usuário e a senha do corpo da solicitação
+	u := new(structs.User)
+	if err := c.Bind(u); err != nil {
+		return err
+	}
+
+	// Verifica se o nome de usuário e a senha foram fornecidos
+	if u.Username == "" || u.Password == "" {
+		return c.String(http.StatusBadRequest, "Username and password must be provided")
+	}
+
+	// Executa a consulta SQL
+	row := db.QueryRow("SELECT * FROM Users WHERE Username = ?", u.Username)
+
+	// Lê o resultado
+	userInDb := structs.User{}
+	err = row.Scan(&userInDb.ID, &userInDb.Username, &userInDb.Password)
+	if err == sql.ErrNoRows {
+		// Nenhum usuário com o nome de usuário fornecido foi encontrado
+		return echo.ErrUnauthorized
+	} else if err != nil {
+		// Um erro diferente ocorreu
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	// Verifica a senha
+	err = bcrypt.CompareHashAndPassword([]byte(userInDb.Password), []byte(u.Password))
+	if err == nil {
+		// A senha está correta, então faça o login do usuário
+		return c.JSON(http.StatusOK, userInDb)
+	}
+
+	// Se chegamos até aqui, o login falhou
+	return echo.ErrUnauthorized
+}
+
+// User godoc
+// @Summary Register user
+// @Description Register user
+// @Tags User
+// @Accept json
+// @Produce json
+// @Param username query string true "Username"
+// @Param password query string true "Password"
+// @Success 200 {object} structs.User
+// @Router /api/v1/user/register [post]
+func Register(c echo.Context) error {
+	// Conecta ao banco de dados
+	db, err := db.ConnectDB()
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	// Certifique-se de que a conexão será fechada no final desta função
+	defer db.Close()
+
+	// Pega o nome de usuário e a senha do corpo da solicitação
+	u := new(structs.User)
+	if err := c.Bind(u); err != nil {
+		return err
+	}
+
+	// Verifica se o nome de usuário e a senha foram fornecidos
+	if u.Username == "" || u.Password == "" {
+		return c.String(http.StatusBadRequest, "Username and password must be provided")
+	}
+
+	// Gera o hash da senha
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	// Executa a consulta SQL para inserir o novo usuário
+	_, err = db.Exec("INSERT INTO Users (Username, Password) VALUES (?, ?)", u.Username, hashedPassword)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	// Retorna uma mensagem de sucesso
+	return c.JSON(http.StatusOK, map[string]string{
+		"message": "User registered successfully",
+	})
 }
 
 // GetAllByIdTeam godoc

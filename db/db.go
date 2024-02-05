@@ -8,9 +8,13 @@ import (
 
 // Passa as informações sobre para a conexão com o banco
 const database = "mysql"
-const user = "admin"
+
+// const user = "admin"
+// const server = "teammate.cr2mw0ioqij3.us-east-1.rds.amazonaws.com"
+// const databaseName = "Teammate"
+const user = "sa"
 const password = "Tunes1313#"
-const server = "teammate.cr2mw0ioqij3.us-east-1.rds.amazonaws.com"
+const server = "localhost"
 const door = "3306"
 const databaseName = "Teammate"
 
@@ -30,10 +34,10 @@ func ConnectDB() (*sql.DB, error) {
 	}
 
 	// Define o fuso horário para São Paulo
-	_, err = db.Exec("SET time_zone = 'America/Sao_Paulo'")
-	if err != nil {
-		return nil, err
-	}
+	//_, err = db.Exec("SET time_zone = 'America/Sao_Paulo'")
+	//if err != nil {
+	//	return nil, err
+	//}
 
 	// Retorna a conexão como resultado
 	return db, nil
