@@ -27,16 +27,26 @@ type Player struct {
 	Position string    `json:"position"`
 }
 
-// Structure that represents a live
 type Live struct {
-	ID             int       `json:"id"`
-	IdTeam1        int       `json:"idteam1"`
-	IdTeam2        int       `json:"idteam2"`
-	IdChampionship int       `json:"idchampionship"`
-	DateMatch      time.Time `json:"datematch"`
-	Stadium        string    `json:"stadium"`
-	TeamPoints1    int       `json:"teampoints1"`
-	TeamPoints2    int       `json:"teampoints2"`
+	ID                            int       `json:"id"`
+	IdTeam1                       int       `json:"idteam1"`
+	IdTeam2                       int       `json:"idteam2"`
+	IdChampionship                int       `json:"idchampionship"`
+	DateMatch                     time.Time `json:"datematch"`
+	Stadium                       string    `json:"stadium"`
+	StatusMatch                   string    `json:"statusmatch"`
+	GameTime                      int       `json:"gametime"`
+	TeamPoints1                   int       `json:"teampoints1"`
+	TeamPoints2                   int       `json:"teampoints2"`
+	HomeTeamWins                  int       `json:"hometeamwins"`
+	VisitingTeamWins              int       `json:"visitingteamwins"`
+	Draws                         int       `json:"draws"`
+	HomeTeamRecentPerformance     float64   `json:"hometeamrecentperformance"`
+	VisitingTeamRecentPerformance float64   `json:"visitingteamrecentperformance"`
+	HomeTeamOdds                  float64   `json:"hometeamodds"`
+	VisitingTeamOdds              float64   `json:"visitingteamodds"`
+	DrawOdds                      float64   `json:"drawodds"`
+	Bets                          []Bet     `json:"bets"`
 }
 
 // Structure that represents a user
@@ -44,4 +54,26 @@ type User struct {
 	ID       int    `json:"id"`
 	Username string `json:"username"`
 	Password string `json:"password"`
+}
+
+type Championship struct {
+	Id      int     `json:"id"`      // Identificador único para o campeonato
+	Name    string  `json:"name"`    // Nome do campeonato
+	Year    int     `json:"year"`    // Ano do campeonato
+	Matches []Match `json:"matches"` // Lista de partidas que fazem parte deste campeonato
+}
+
+type Bet struct {
+	Id              int     `json:"id"`              // Identificador único para a aposta
+	MatchId         int     `json:"matchId"`         // Identificador da partida na qual a aposta é feita
+	UserId          int     `json:"userId"`          // Identificador do usuário que fez a aposta
+	SelectedOutcome string  `json:"selectedOutcome"` // O resultado selecionado pelo usuário ("HomeTeam", "VisitingTeam" ou "Draw")
+	BetAmount       float64 `json:"betAmount"`       // A quantidade de dinheiro apostada pelo usuário
+	PossibleReturn  float64 `json:"possibleReturn"`  // O retorno possível se a aposta for bem-sucedida
+}
+
+type Match struct {
+	Id             int          `json:"id"`             // Identificador único para a partida
+	ChampionshipId int          `json:"championshipId"` // Identificador do campeonato
+	Championship   Championship `json:"championship"`   // Campeonato da partida
 }

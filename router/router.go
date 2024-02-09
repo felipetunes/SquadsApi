@@ -40,7 +40,7 @@ func defineUserRoutes(g *echo.Group) {
 
 	// @Summary Login user
 	// @Description Login user
-	// @Tags User
+	// @Tags Users
 	// @Accept  json
 	// @Produce  json
 	// @Param username query string true "Username"
@@ -51,7 +51,7 @@ func defineUserRoutes(g *echo.Group) {
 
 	// @Summary Register user
 	// @Description Register user
-	// @Tags User
+	// @Tags Users
 	// @Accept  json
 	// @Produce  json
 	// @Param username query string true "Username"
@@ -65,7 +65,7 @@ func defineLiveRoutes(g *echo.Group) {
 
 	// @Summary Obter todos os jogos ao vivo
 	// @Description Obter todos os jogos
-	// @Tags Live
+	// @Tags Lives
 	// @Accept  json
 	// @Produce  json
 	// @Success 200 {array} structs.Live
@@ -74,7 +74,7 @@ func defineLiveRoutes(g *echo.Group) {
 
 	// @Summary Obter todos os jogos do dia
 	// @Description Obter todos os jogos do dia
-	// @Tags Live
+	// @Tags Lives
 	// @Accept  json
 	// @Produce  json
 	// @Success 200 {array} structs.Live
@@ -83,7 +83,7 @@ func defineLiveRoutes(g *echo.Group) {
 
 	// @Summary Obter todos os jogos de um time especifico
 	// @Description Obter todos os jogos de um time especifico
-	// @Tags Live
+	// @Tags Lives
 	// @Accept  json
 	// @Produce  json
 	// @Success 200 {array} structs.Live
@@ -92,7 +92,7 @@ func defineLiveRoutes(g *echo.Group) {
 
 	// @Summary Inserir uma partida ao vivo
 	// @Description Inserir uma partida ao vivo
-	// @Tags Live
+	// @Tags Lives
 	// @Accept  json
 	// @Produce  json
 	// @Param teamid1 query int true "Team ID 1"
@@ -108,7 +108,7 @@ func defineLiveRoutes(g *echo.Group) {
 
 	// @Summary Atualizar uma partida ao vivo
 	// @Description Atualizar uma partida ao vivo
-	// @Tags Live
+	// @Tags Lives
 	// @Accept  json
 	// @Produce  json
 	// @Param id query int true "Live ID"
@@ -122,6 +122,15 @@ func defineLiveRoutes(g *echo.Group) {
 	// @Success 200 {object} structs.Live
 	// @Router /api/v1/live/update [put]
 	g.PUT("/live/update", UpdateLive)
+
+	// @Summary Obter uma partida ao vivo por ID
+	// @Description Obter uma partida ao vivo por ID
+	// @Tags Lives
+	// @Accept  json
+	// @Produce  json
+	// @Success 200 {object} structs.Live
+	// @Router /api/v1/live/getbyid/{id} [get]
+	g.GET("/live/getbyid/:id", GetByIdLive)
 
 }
 
@@ -219,7 +228,7 @@ func defineTeamRoutes(g *echo.Group) {
 func definePlayerRoutes(g *echo.Group) {
 	// @Summary Obter todos os jogadores
 	// @Description Obter todos os jogadores
-	// @Tags players
+	// @Tags Players
 	// @Accept  json
 	// @Produce  json
 	// @Success 200 {array} structs.Player
@@ -238,7 +247,7 @@ func definePlayerRoutes(g *echo.Group) {
 
 	// @Summary Obter um jogador por nome
 	// @Description Obter um player por nome
-	// @Tags players
+	// @Tags Players
 	// @Accept  json
 	// @Produce  json
 	// @Success 200 {object} structs.Player
@@ -247,15 +256,16 @@ func definePlayerRoutes(g *echo.Group) {
 
 	// @Summary Obter jogadores por ID do time
 	// @Description Obter jogadores por ID do time
-	// @Tags players
+	// @Tags Players
 	// @Accept  json
 	// @Produce  json
 	// @Success 200 {array} structs.Player
 	// @Router /api/v1/player/getbyidteam/{idteam} [get]
 	g.GET("/player/getbyidteam/:idteam", GetByIdTeamPlayer)
+
 	// @Summary Inserir um jogador
 	// @Description Inserir um jogador
-	// @Tags jogadores
+	// @Tags Players
 	// @Accept  json
 	// @Produce  json
 	// @Param name query string true "Player Name"
@@ -268,25 +278,28 @@ func definePlayerRoutes(g *echo.Group) {
 	// @Success 200 {object} structs.Player
 	// @Router /api/v1/player/insert [post]
 	g.POST("/player/insert", InsertPlayer)
+
 	// @Summary Obter um jogador por ID
 	// @Description Obter um jogador por ID
-	// @Tags jogadores
+	// @Tags Players
 	// @Accept  json
 	// @Produce  json
 	// @Success 200 {object} structs.Player
 	// @Router /api/v1/player/getbyid/{id} [get]
 	g.GET("/player/getbyid/:id", GetByIdPlayer)
+
 	// @Summary Obter um jogador por país
 	// @Description Obter um jogador por país
-	// @Tags jogadores
+	// @Tags Players
 	// @Accept  json
 	// @Produce  json
 	// @Success 200 {object} structs.Player
 	// @Router /api/v1/player/getbycountry/{country} [get]
 	g.GET("/player/getbycountry/:country", GetByCountryPlayer)
+
 	// @Summary Atualizar um jogador
 	// @Description Atualizar um jogador
-	// @Tags times
+	// @Tags Players
 	// @Accept  json
 	// @Produce  json
 	// @Param id player query int true "ID Team"

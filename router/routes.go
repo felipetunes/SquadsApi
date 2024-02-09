@@ -138,7 +138,7 @@ func GetAllPlayers(c echo.Context) error {
 // GetAllLives godoc
 // @Summary Get all matches
 // @Description Get all matches
-// @Tags Live
+// @Tags Lives
 // @Accept  json
 // @Produce  json
 // @Success 200 {array} structs.Live
@@ -192,7 +192,7 @@ func GetAllMatches(c echo.Context) error {
 // User godoc
 // @Summary Login user
 // @Description Login user
-// @Tags User
+// @Tags Users
 // @Accept  json
 // @Produce  json
 // @Param   username     query    string     true        "Username"
@@ -248,7 +248,7 @@ func Login(c echo.Context) error {
 // User godoc
 // @Summary Register user
 // @Description Register user
-// @Tags User
+// @Tags Users
 // @Accept json
 // @Produce json
 // @Param username query string true "Username"
@@ -297,7 +297,7 @@ func Register(c echo.Context) error {
 // GetAllByIdTeam godoc
 // @Summary Get all matches by team id
 // @Description Get all matches by team id
-// @Tags Live
+// @Tags Lives
 // @Accept  json
 // @Produce  json
 // @Param id path string true "Team ID"
@@ -366,16 +366,15 @@ func GetAllByIdTeam(c echo.Context) error {
 	return c.JSONBlob(http.StatusOK, livesJSON)
 }
 
-// GetAllLives godoc
+// GetAllLivesToday godoc
 // @Summary Get all matches today
 // @Description Get all matches today
-// @Tags Live
+// @Tags Lives
 // @Accept  json
 // @Produce  json
 // @Success 200 {array} structs.Live
 // @Router /api/v1/live/getalltoday [get]
 func GetAllLivesToday(c echo.Context) error {
-
 	// Conecta ao banco de dados
 	db, err := db.ConnectDB()
 	if err != nil {
@@ -440,7 +439,7 @@ func GetAllLivesToday(c echo.Context) error {
 // InsertLive godoc
 // @Summary Insert a live match
 // @Description Insert a live match
-// @Tags Live
+// @Tags Lives
 // @Accept  json
 // @Produce  json
 // @Param idteam1 query int true "Team ID 1"
@@ -503,18 +502,18 @@ func InsertLive(c echo.Context) error {
 // UpdateLive godoc
 // @Summary Update a live match
 // @Description Update a live match
-// @Tags Live
+// @Tags Lives
 // @Accept  json
 // @Produce  json
-// @Param id query int true "Live ID"
+// @Param id query int true "Match ID"
 // @Param idteam1 query int true "Team ID 1"
 // @Param idteam2 query int true "Team ID 2"
-// @Param idchampionship query int true "IdChampionship"
+// @Param idchampionship query int true "Championship ID"
 // @Param datematch query string true "Date of Match"
 // @Param stadium query string true "Stadium"
 // @Param teampoints1 query int true "Team Points 1"
 // @Param teampoints2 query int true "Team Points 2"
-// @Success 200 {object} structs.Live
+// @Success 200 {string} string "Partida ao vivo atualizada com sucesso."
 // @Router /api/v1/live/update [put]
 func UpdateLive(c echo.Context) error {
 	// Conecta ao banco de dados
@@ -527,20 +526,48 @@ func UpdateLive(c echo.Context) error {
 	defer db.Close()
 
 	// Obtém os dados da partida ao vivo da URL
-	id, _ := strconv.Atoi(c.QueryParam("id"))
-	idteam1, _ := strconv.Atoi(c.QueryParam("idteam1"))
-	idteam2, _ := strconv.Atoi(c.QueryParam("idteam2"))
-	idchampionship, _ := strconv.Atoi(c.QueryParam("idchampionship"))
+	id, err := strconv.Atoi(c.QueryParam("id"))
+	if err != nil {
+		return c.String(http.StatusBadRequest, "ID inválido")
+	}
+	idteam1, err := strconv.Atoi(c.QueryParam("idteam1"))
+	if err != nil {
+		return c.String(http.StatusBadRequest, "ID da equipe 1 inválido")
+	}
+	idteam2, err := strconv.Atoi(c.QueryParam("idteam2"))
+	if err != nil {
+		return c.String(http.StatusBadRequest, "ID da equipe 2 inválido")
+	}
+	idchampionship, err := strconv.Atoi(c.QueryParam("idchampionship"))
+	if err != nil {
+		return c.String(http.StatusBadRequest, "ID do campeonato inválido")
+	}
 	datematch := c.QueryParam("datematch")
 	stadium := c.QueryParam("stadium")
-	teampoints1, _ := strconv.Atoi(c.QueryParam("teampoints1"))
-	teampoints2, _ := strconv.Atoi(c.QueryParam("teampoints2"))
+	teampoints1, err := strconv.Atoi(c.QueryParam("teampoints1"))
+	if err != nil {
+		return c.String(http.StatusBadRequest, "Pontos da equipe 1 inválidos")
+	}
+	teampoints2, err := strconv.Atoi(c.QueryParam("teampoints2"))
+	if err != nil {
+		return c.String(http.StatusBadRequest, "Pontos da equipe 2 inválidos")
+	}
 
 	// Converte a string datematch para o tipo time.Time
 	layout := "02/01/2006 15:04"
 	parsedDate, err := time.Parse(layout, datematch)
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	// Verifica se a partida ao vivo existe
+	var count int
+	err = db.QueryRow("SELECT COUNT(*) FROM Live WHERE id = ?", id).Scan(&count)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+	if count == 0 {
+		return c.String(http.StatusNotFound, "Partida ao vivo não encontrada")
 	}
 
 	// Cria um novo struct Live com os dados obtidos
@@ -562,7 +589,7 @@ func UpdateLive(c echo.Context) error {
 	}
 
 	// Envia a resposta
-	return c.String(http.StatusOK, "Partida atualizada com sucesso.")
+	return c.String(http.StatusOK, "Partida ao vivo atualizada com sucesso.")
 }
 
 // InsertTeam godoc
@@ -609,19 +636,6 @@ func InsertTeam(c echo.Context) error {
 	return c.String(http.StatusOK, fmt.Sprintf("Time inserido com o ID %d", id))
 }
 
-// UpdateTeam godoc
-// @Summary Update a team
-// @Description Update a team
-// @Tags Teams
-// @Accept  json
-// @Produce  json
-// @Param id query int true "ID Team"
-// @Param name query string true "Team Name"
-// @Param city query string true "City"
-// @Param country query string true "Country"
-// @Param color1 query string true "Color1"
-// @Success 200 {object} structs.Team
-// @Router /api/v1/team/update [put]
 func UpdateTeam(c echo.Context) error {
 	// Conecta ao banco de dados
 	db, err := db.ConnectDB()
@@ -633,11 +647,29 @@ func UpdateTeam(c echo.Context) error {
 	defer db.Close()
 
 	// Obtém os dados do time da URL
-	id := c.QueryParam("id")
+	id, err := strconv.Atoi(c.QueryParam("id"))
+	if err != nil {
+		return c.String(http.StatusBadRequest, "ID inválido")
+	}
 	name := c.QueryParam("name")
 	city := c.QueryParam("city")
 	country := c.QueryParam("country")
 	color1 := c.QueryParam("color1")
+
+	// Verifica se os campos obrigatórios estão presentes
+	if name == "" || city == "" || country == "" || color1 == "" {
+		return c.String(http.StatusBadRequest, "Nome, cidade, país e cor1 são obrigatórios")
+	}
+
+	// Verifica se o time existe
+	var count int
+	err = db.QueryRow("SELECT COUNT(*) FROM Team WHERE id = ?", id).Scan(&count)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+	if count == 0 {
+		return c.String(http.StatusNotFound, "Time não encontrado")
+	}
 
 	// Executa a consulta SQL
 	result, err := db.Exec("UPDATE Team SET name = ?, city = ?, country = ?, color1 = ? WHERE id = ?", name, city, country, color1, id)
@@ -775,6 +807,52 @@ func GetByIdTeam(c echo.Context) error {
 
 	// Envia a resposta em JSON
 	return c.JSONBlob(http.StatusOK, teamJSON)
+}
+
+// GetByIdLive godoc
+// @Summary Get a live match by ID
+// @Description Get a live match by ID
+// @Tags Lives
+// @Accept  json
+// @Produce  json
+// @Param id path string true "Live ID"
+// @Success 200 {object} structs.Live
+// @Router /api/v1/live/getbyid/{id} [get]
+func GetByIdLive(c echo.Context) error {
+	// Conecta ao banco de dados
+	db, err := db.ConnectDB()
+
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	// Certifique-se de que a conexão será fechada no final desta função
+	defer db.Close()
+
+	// Obtém o valor do parâmetro id da URL da rota
+	id := c.Param("id")
+
+	// Executa a consulta SQL que seleciona a partida ao vivo com o ID informado
+	row := db.QueryRow("SELECT * FROM Live WHERE id = ?", id)
+
+	// Cria uma variável do tipo Live para armazenar os dados da partida ao vivo
+	var live structs.Live
+
+	// Lê o resultado da consulta e preenche a estrutura da partida ao vivo com os dados obtidos
+	err = row.Scan(&live.ID, &live.IdTeam1, &live.IdTeam2, &live.IdChampionship, &live.DateMatch, &live.Stadium, &live.StatusMatch, &live.GameTime, &live.TeamPoints1, &live.TeamPoints2, &live.HomeTeamWins, &live.VisitingTeamWins, &live.Draws, &live.HomeTeamRecentPerformance, &live.VisitingTeamRecentPerformance, &live.HomeTeamOdds, &live.VisitingTeamOdds, &live.DrawOdds)
+	if err != nil {
+		// Lida com o erro
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	// Converte a estrutura da partida ao vivo em JSON
+	liveJSON, err := json.Marshal(live)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	// Envia a resposta em JSON
+	return c.JSONBlob(http.StatusOK, liveJSON)
 }
 
 // GetByIdPlayer godoc
@@ -1271,7 +1349,7 @@ func UpdatePlayer(c echo.Context) error {
 // GetByChampionship godoc
 // @Summary Get teams by championship
 // @Description Get teams by a given championship ID
-// @Tags Team
+// @Tags Teams
 // @Accept  json
 // @Produce  json
 // @Param id query int true "ID Championship"

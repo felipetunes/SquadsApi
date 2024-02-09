@@ -25,7 +25,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Live"
+                    "Lives"
                 ],
                 "summary": "Get all matches",
                 "responses": {
@@ -51,7 +51,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Live"
+                    "Lives"
                 ],
                 "summary": "Get all matches by team id",
                 "parameters": [
@@ -86,7 +86,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Live"
+                    "Lives"
                 ],
                 "summary": "Get all matches today",
                 "responses": {
@@ -102,9 +102,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/live/insert": {
-            "post": {
-                "description": "Insert a live match",
+        "/api/v1/live/getbyid/{id}": {
+            "get": {
+                "description": "Get a live match by ID",
                 "consumes": [
                     "application/json"
                 ],
@@ -112,57 +112,15 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Live"
+                    "Lives"
                 ],
-                "summary": "Insert a live match",
+                "summary": "Get a live match by ID",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "Team ID 1",
-                        "name": "idteam1",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Team ID 2",
-                        "name": "idteam2",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "IdChampionship",
-                        "name": "idchampionship",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
                         "type": "string",
-                        "description": "Date of Match",
-                        "name": "datematch",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Stadium",
-                        "name": "stadium",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Team Points 1",
-                        "name": "teampoints1",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Team Points 2",
-                        "name": "teampoints2",
-                        "in": "query",
+                        "description": "Live ID",
+                        "name": "id",
+                        "in": "path",
                         "required": true
                     }
                 ],
@@ -176,9 +134,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/live/update": {
-            "put": {
-                "description": "Update a live match",
+        "/api/v1/live/insert": {
+            "post": {
+                "description": "Insert a live match",
                 "consumes": [
                     "application/json"
                 ],
@@ -186,17 +144,10 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Live"
+                    "Lives"
                 ],
-                "summary": "Update a live match",
+                "summary": "Insert a live match",
                 "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Live ID",
-                        "name": "id",
-                        "in": "query",
-                        "required": true
-                    },
                     {
                         "type": "integer",
                         "description": "Team ID 1",
@@ -675,7 +626,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Team"
+                    "Teams"
                 ],
                 "summary": "Get teams by championship",
                 "parameters": [
@@ -855,66 +806,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/team/update": {
-            "put": {
-                "description": "Update a team",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Teams"
-                ],
-                "summary": "Update a team",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "ID Team",
-                        "name": "id",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Team Name",
-                        "name": "name",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "City",
-                        "name": "city",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Country",
-                        "name": "country",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Color1",
-                        "name": "color1",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/structs.Team"
-                        }
-                    }
-                }
-            }
-        },
         "/api/v1/user/login": {
             "post": {
                 "description": "Login user",
@@ -925,7 +816,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "User"
+                    "Users"
                 ],
                 "summary": "Login user",
                 "parameters": [
@@ -964,7 +855,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "User"
+                    "Users"
                 ],
                 "summary": "Register user",
                 "parameters": [
@@ -995,31 +886,141 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "structs.Bet": {
+            "type": "object",
+            "properties": {
+                "betAmount": {
+                    "description": "A quantidade de dinheiro apostada pelo usuário",
+                    "type": "number"
+                },
+                "id": {
+                    "description": "Identificador único para a aposta",
+                    "type": "integer"
+                },
+                "matchId": {
+                    "description": "Identificador da partida na qual a aposta é feita",
+                    "type": "integer"
+                },
+                "possibleReturn": {
+                    "description": "O retorno possível se a aposta for bem-sucedida",
+                    "type": "number"
+                },
+                "selectedOutcome": {
+                    "description": "O resultado selecionado pelo usuário (\"HomeTeam\", \"VisitingTeam\" ou \"Draw\")",
+                    "type": "string"
+                },
+                "userId": {
+                    "description": "Identificador do usuário que fez a aposta",
+                    "type": "integer"
+                }
+            }
+        },
+        "structs.Championship": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "description": "Identificador único para o campeonato",
+                    "type": "integer"
+                },
+                "matches": {
+                    "description": "Lista de partidas que fazem parte deste campeonato",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/structs.Match"
+                    }
+                },
+                "name": {
+                    "description": "Nome do campeonato",
+                    "type": "string"
+                },
+                "year": {
+                    "description": "Ano do campeonato",
+                    "type": "integer"
+                }
+            }
+        },
         "structs.Live": {
             "type": "object",
             "properties": {
+                "bets": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/structs.Bet"
+                    }
+                },
+                "championship": {
+                    "$ref": "#/definitions/structs.Championship"
+                },
                 "datematch": {
                     "type": "string"
+                },
+                "drawodds": {
+                    "type": "number"
+                },
+                "draws": {
+                    "type": "integer"
+                },
+                "gametime": {
+                    "type": "integer"
+                },
+                "hometeam": {
+                    "$ref": "#/definitions/structs.Team"
+                },
+                "hometeamodds": {
+                    "type": "number"
+                },
+                "hometeamrecentperformance": {
+                    "type": "number"
+                },
+                "hometeamwins": {
+                    "type": "integer"
                 },
                 "id": {
                     "type": "integer"
                 },
-                "idchampionship": {
-                    "type": "integer"
-                },
-                "idteam1": {
-                    "type": "integer"
-                },
-                "idteam2": {
-                    "type": "integer"
-                },
                 "stadium": {
+                    "type": "string"
+                },
+                "statusmatch": {
                     "type": "string"
                 },
                 "teampoints1": {
                     "type": "integer"
                 },
                 "teampoints2": {
+                    "type": "integer"
+                },
+                "visitingteam": {
+                    "$ref": "#/definitions/structs.Team"
+                },
+                "visitingteamodds": {
+                    "type": "number"
+                },
+                "visitingteamrecentperformance": {
+                    "type": "number"
+                },
+                "visitingteamwins": {
+                    "type": "integer"
+                }
+            }
+        },
+        "structs.Match": {
+            "type": "object",
+            "properties": {
+                "championship": {
+                    "description": "Campeonato da partida",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/structs.Championship"
+                        }
+                    ]
+                },
+                "championshipId": {
+                    "description": "Identificador do campeonato",
+                    "type": "integer"
+                },
+                "id": {
+                    "description": "Identificador único para a partida",
                     "type": "integer"
                 }
             }
