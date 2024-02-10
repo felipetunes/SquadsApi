@@ -42,9 +42,6 @@ type Live struct {
 	Draws                         int          `json:"draws"`
 	HomeTeamRecentPerformance     float64      `json:"hometeamrecentperformance"`
 	VisitingTeamRecentPerformance float64      `json:"visitingteamrecentperformance"`
-	HomeTeamOdds                  float64      `json:"hometeamodds"`
-	VisitingTeamOdds              float64      `json:"visitingteamodds"`
-	DrawOdds                      float64      `json:"drawodds"`
 }
 
 // Structure that represents a user

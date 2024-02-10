@@ -165,7 +165,7 @@ func GetAllMatches(c echo.Context) error {
 	// Lê os resultados
 	for rows.Next() {
 		live := structs.Live{}
-		err = rows.Scan(&live.ID, &live.HomeTeam, &live.VisitingTeam, &live.Championship, &live.DateMatch, &live.Stadium, &live.StatusMatch, &live.TeamPoints1, &live.TeamPoints2, &live.HomeTeamWins, &live.VisitingTeamWins, &live.Draws, &live.HomeTeamRecentPerformance, &live.VisitingTeamRecentPerformance, &live.HomeTeamOdds, &live.VisitingTeamOdds, &live.DrawOdds)
+		err = rows.Scan(&live.ID, &live.HomeTeam, &live.VisitingTeam, &live.Championship, &live.DateMatch, &live.Stadium, &live.StatusMatch, &live.TeamPoints1, &live.TeamPoints2, &live.HomeTeamWins, &live.VisitingTeamWins, &live.Draws, &live.HomeTeamRecentPerformance, &live.VisitingTeamRecentPerformance)
 		if err != nil {
 			return c.String(http.StatusInternalServerError, err.Error())
 		}
@@ -332,7 +332,7 @@ func GetAllByIdTeam(c echo.Context) error {
 	// Lê os resultados
 	for rows.Next() {
 		live := structs.Live{}
-		err = rows.Scan(&live.ID, &live.HomeTeam, &live.VisitingTeam, &live.Championship, &live.DateMatch, &live.Stadium, &live.StatusMatch, &live.TeamPoints1, &live.TeamPoints2, &live.HomeTeamWins, &live.VisitingTeamWins, &live.Draws, &live.HomeTeamRecentPerformance, &live.VisitingTeamRecentPerformance, &live.HomeTeamOdds, &live.VisitingTeamOdds, &live.DrawOdds)
+		err = rows.Scan(&live.ID, &live.HomeTeam, &live.VisitingTeam, &live.Championship, &live.DateMatch, &live.Stadium, &live.StatusMatch, &live.TeamPoints1, &live.TeamPoints2, &live.HomeTeamWins, &live.VisitingTeamWins, &live.Draws, &live.HomeTeamRecentPerformance, &live.VisitingTeamRecentPerformance)
 		if err != nil {
 			return c.String(http.StatusInternalServerError, err.Error())
 		}
@@ -393,7 +393,7 @@ func GetAllLivesToday(c echo.Context) error {
 		var dateMatch string
 
 		// Preenche as variáveis com os dados da linha
-		err = rows.Scan(&live.ID, &idTeam1, &idTeam2, &idChampionship, &dateMatch, &live.Stadium, &live.StatusMatch, &live.TeamPoints1, &live.TeamPoints2, &live.HomeTeamWins, &live.VisitingTeamWins, &live.Draws, &live.HomeTeamRecentPerformance, &live.VisitingTeamRecentPerformance, &live.HomeTeamOdds, &live.VisitingTeamOdds, &live.DrawOdds)
+		err = rows.Scan(&live.ID, &idTeam1, &idTeam2, &idChampionship, &dateMatch, &live.Stadium, &live.StatusMatch, &live.TeamPoints1, &live.TeamPoints2, &live.HomeTeamWins, &live.VisitingTeamWins, &live.Draws, &live.HomeTeamRecentPerformance, &live.VisitingTeamRecentPerformance)
 		if err != nil {
 			return c.String(http.StatusInternalServerError, err.Error())
 		}
@@ -831,7 +831,7 @@ func GetByIdLive(c echo.Context) error {
 	row := db.QueryRow("SELECT * FROM Live WHERE id = ?", live.ID)
 
 	// Lê o resultado da consulta e preenche a estrutura da partida ao vivo com os dados obtidos
-	err = row.Scan(&live.ID, &live.HomeTeam, &live.VisitingTeam, &live.Championship, &live.DateMatch, &live.Stadium, &live.StatusMatch, &live.TeamPoints1, &live.TeamPoints2, &live.HomeTeamWins, &live.VisitingTeamWins, &live.Draws, &live.HomeTeamRecentPerformance, &live.VisitingTeamRecentPerformance, &live.HomeTeamOdds, &live.VisitingTeamOdds, &live.DrawOdds)
+	err = row.Scan(&live.ID, &live.HomeTeam, &live.VisitingTeam, &live.Championship, &live.DateMatch, &live.Stadium, &live.StatusMatch, &live.TeamPoints1, &live.TeamPoints2, &live.HomeTeamWins, &live.VisitingTeamWins, &live.Draws, &live.HomeTeamRecentPerformance, &live.VisitingTeamRecentPerformance)
 	if err != nil {
 		// Lida com o erro
 		return c.String(http.StatusInternalServerError, err.Error())
