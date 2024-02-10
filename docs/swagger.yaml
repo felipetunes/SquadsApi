@@ -2,7 +2,6 @@ definitions:
   structs.Championship:
     properties:
       id:
-        description: Identificador único para o campeonato
         type: integer
       matches:
         description: Lista de partidas que fazem parte deste campeonato
@@ -10,10 +9,8 @@ definitions:
           $ref: '#/definitions/structs.Match'
         type: array
       name:
-        description: Nome do campeonato
         type: string
       year:
-        description: Ano do campeonato
         type: integer
     type: object
   structs.Live:
@@ -22,14 +19,10 @@ definitions:
         $ref: '#/definitions/structs.Championship'
       datematch:
         type: string
-      drawodds:
-        type: number
       draws:
         type: integer
       hometeam:
         $ref: '#/definitions/structs.Team'
-      hometeamodds:
-        type: number
       hometeamrecentperformance:
         type: number
       hometeamwins:
@@ -46,8 +39,6 @@ definitions:
         type: integer
       visitingteam:
         $ref: '#/definitions/structs.Team'
-      visitingteamodds:
-        type: number
       visitingteamrecentperformance:
         type: number
       visitingteamwins:
@@ -100,10 +91,16 @@ definitions:
     type: object
   structs.User:
     properties:
+      cash:
+        type: number
       id:
         type: integer
       password:
         type: string
+      photo:
+        items:
+          type: integer
+        type: array
       username:
         type: string
     type: object
@@ -662,11 +659,6 @@ paths:
       - description: Country
         in: query
         name: country
-        required: true
-        type: string
-      - description: Color1
-        in: query
-        name: color1
         required: true
         type: string
       produces:

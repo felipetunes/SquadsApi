@@ -849,13 +849,6 @@ const docTemplate = `{
                         "name": "country",
                         "in": "query",
                         "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Color1",
-                        "name": "color1",
-                        "in": "query",
-                        "required": true
                     }
                 ],
                 "responses": {
@@ -952,7 +945,6 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "id": {
-                    "description": "Identificador único para o campeonato",
                     "type": "integer"
                 },
                 "matches": {
@@ -963,11 +955,9 @@ const docTemplate = `{
                     }
                 },
                 "name": {
-                    "description": "Nome do campeonato",
                     "type": "string"
                 },
                 "year": {
-                    "description": "Ano do campeonato",
                     "type": "integer"
                 }
             }
@@ -981,17 +971,11 @@ const docTemplate = `{
                 "datematch": {
                     "type": "string"
                 },
-                "drawodds": {
-                    "type": "number"
-                },
                 "draws": {
                     "type": "integer"
                 },
                 "hometeam": {
                     "$ref": "#/definitions/structs.Team"
-                },
-                "hometeamodds": {
-                    "type": "number"
                 },
                 "hometeamrecentperformance": {
                     "type": "number"
@@ -1016,9 +1000,6 @@ const docTemplate = `{
                 },
                 "visitingteam": {
                     "$ref": "#/definitions/structs.Team"
-                },
-                "visitingteamodds": {
-                    "type": "number"
                 },
                 "visitingteamrecentperformance": {
                     "type": "number"
@@ -1101,11 +1082,20 @@ const docTemplate = `{
         "structs.User": {
             "type": "object",
             "properties": {
+                "cash": {
+                    "type": "number"
+                },
                 "id": {
                     "type": "integer"
                 },
                 "password": {
                     "type": "string"
+                },
+                "photo": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
                 },
                 "username": {
                     "type": "string"

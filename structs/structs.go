@@ -12,7 +12,6 @@ type Team struct {
 	Name    string `json:"name"`
 	City    string `json:"city"`
 	Country string `json:"country"`
-	Color1  string `json:"color1"`
 }
 
 // Structure that represents a player
@@ -46,20 +45,22 @@ type Live struct {
 
 // Structure that represents a user
 type User struct {
-	ID       int    `json:"id"`
-	Username string `json:"username"`
-	Password string `json:"password"`
+	ID       int     `json:"id"`
+	Username string  `json:"username"`
+	Password string  `json:"password"`
+	Photo    []byte  `json:"photo"`
+	Cash     float64 `json:"cash"`
 }
 
 type Championship struct {
-	Id      int     `json:"id"`      // Identificador único para o campeonato
-	Name    string  `json:"name"`    // Nome do campeonato
-	Year    int     `json:"year"`    // Ano do campeonato
+	Id      int     `json:"id"`
+	Name    string  `json:"name"`
+	Year    int     `json:"year"`
 	Matches []Match `json:"matches"` // Lista de partidas que fazem parte deste campeonato
 }
 
 type Bet struct {
-	Id              int     `json:"id"`              // Identificador único para a aposta
+	Id              int     `json:"id"`
 	MatchId         int     `json:"matchId"`         // Identificador da partida na qual a aposta é feita
 	UserId          int     `json:"userId"`          // Identificador do usuário que fez a aposta
 	SelectedOutcome string  `json:"selectedOutcome"` // O resultado selecionado pelo usuário ("HomeTeam", "VisitingTeam" ou "Draw")
