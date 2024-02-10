@@ -144,7 +144,6 @@ func GetAllPlayers(c echo.Context) error {
 // @Success 200 {array} structs.Live
 // @Router /api/v1/live/getall [get]
 func GetAllMatches(c echo.Context) error {
-	var dateMatch string
 	// Conecta ao banco de dados
 	db, err := db.ConnectDB()
 	if err != nil {
@@ -166,11 +165,7 @@ func GetAllMatches(c echo.Context) error {
 	// Lê os resultados
 	for rows.Next() {
 		live := structs.Live{}
-		err = rows.Scan(&live.ID, &live.IdTeam1, &live.IdTeam2, &live.IdChampionship, &dateMatch, &live.Stadium, &live.TeamPoints1, &live.TeamPoints2)
-		if err != nil {
-			return c.String(http.StatusInternalServerError, err.Error())
-		}
-		live.DateMatch, err = time.Parse("2006-01-02 15:04:05", dateMatch)
+		err = rows.Scan(&live.ID, &live.HomeTeam, &live.VisitingTeam, &live.Championship, &live.DateMatch, &live.Stadium, &live.StatusMatch, &live.TeamPoints1, &live.TeamPoints2, &live.HomeTeamWins, &live.VisitingTeamWins, &live.Draws, &live.HomeTeamRecentPerformance, &live.VisitingTeamRecentPerformance, &live.HomeTeamOdds, &live.VisitingTeamOdds, &live.DrawOdds)
 		if err != nil {
 			return c.String(http.StatusInternalServerError, err.Error())
 		}
@@ -300,12 +295,10 @@ func Register(c echo.Context) error {
 // @Tags Lives
 // @Accept  json
 // @Produce  json
-// @Param id path string true "Team ID"
+// @Param team body structs.Team true "Team"
 // @Success 200 {array} structs.Live
-// @Router /api/v1/live/getallbyidteam/{id} [get]
+// @Router /api/v1/live/getallbyidteam [get]
 func GetAllByIdTeam(c echo.Context) error {
-	var dateMatch string
-
 	// Conecta ao banco de dados
 	db, err := db.ConnectDB()
 	if err != nil {
@@ -315,20 +308,20 @@ func GetAllByIdTeam(c echo.Context) error {
 	// Certifique-se de que a conexão será fechada no final desta função
 	defer db.Close()
 
-	// Obtém o IdTeam do parâmetro de rota
-	idTeam, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
+	// Obtém os dados da equipe do corpo da solicitação
+	team := new(structs.Team)
+	if err := c.Bind(team); err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
 
 	// Prepara a consulta SQL
-	stmt, err := db.Prepare("SELECT * FROM Live WHERE IdTeam1 = ? OR IdTeam2 = ?")
+	stmt, err := db.Prepare("SELECT * FROM Live WHERE HomeTeam = ? OR VisitingTeam = ?")
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
 
 	// Executa a consulta SQL
-	rows, err := stmt.Query(idTeam, idTeam)
+	rows, err := stmt.Query(team, team)
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
@@ -339,13 +332,10 @@ func GetAllByIdTeam(c echo.Context) error {
 	// Lê os resultados
 	for rows.Next() {
 		live := structs.Live{}
-		err = rows.Scan(&live.ID, &live.IdTeam1, &live.IdTeam2, &live.IdChampionship, &dateMatch, &live.Stadium, &live.TeamPoints1, &live.TeamPoints2)
-		live.DateMatch, err = time.Parse("2006-01-02 15:04:05", dateMatch)
-
+		err = rows.Scan(&live.ID, &live.HomeTeam, &live.VisitingTeam, &live.Championship, &live.DateMatch, &live.Stadium, &live.StatusMatch, &live.TeamPoints1, &live.TeamPoints2, &live.HomeTeamWins, &live.VisitingTeamWins, &live.Draws, &live.HomeTeamRecentPerformance, &live.VisitingTeamRecentPerformance, &live.HomeTeamOdds, &live.VisitingTeamOdds, &live.DrawOdds)
 		if err != nil {
 			return c.String(http.StatusInternalServerError, err.Error())
 		}
-
 		lives = append(lives, live)
 	}
 	// Fecha o conjunto de resultados
@@ -384,15 +374,8 @@ func GetAllLivesToday(c echo.Context) error {
 	// Certifique-se de que a conexão será fechada no final desta função
 	defer db.Close()
 
-	// Obtém o valor do CURDATE()
-	var curDate string
-	err = db.QueryRow("SELECT CURDATE()").Scan(&curDate)
-	if err != nil {
-		return c.String(http.StatusInternalServerError, err.Error())
-	}
-
 	// Executa a consulta SQL
-	rows, err := db.Query("SELECT ID, IdTeam1, IdTeam2, IdChampionship, DATE_FORMAT(DateMatch, '%Y-%m-%d %H:%i:%s') as DateMatch, Stadium, TeamPoints1, TeamPoints2 FROM Live WHERE DATE(DateMatch) = CURDATE() ORDER BY DateMatch")
+	rows, err := db.Query("SELECT * FROM Live WHERE DATE(DateMatch) = CURDATE() ORDER BY DateMatch")
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
@@ -405,17 +388,32 @@ func GetAllLivesToday(c echo.Context) error {
 		// Cria uma partida ao vivo vazia
 		live := structs.Live{}
 
-		// Cria uma variável para armazenar a data e hora como string
+		// Cria variáveis para armazenar os IDs das equipes, do campeonato e a data da partida
+		var idTeam1, idTeam2, idChampionship int
 		var dateMatch string
 
-		// Preenche a partida ao vivo com os dados da linha
-		err = rows.Scan(&live.ID, &live.IdTeam1, &live.IdTeam2, &live.IdChampionship, &dateMatch, &live.Stadium, &live.TeamPoints1, &live.TeamPoints2)
+		// Preenche as variáveis com os dados da linha
+		err = rows.Scan(&live.ID, &idTeam1, &idTeam2, &idChampionship, &dateMatch, &live.Stadium, &live.StatusMatch, &live.TeamPoints1, &live.TeamPoints2, &live.HomeTeamWins, &live.VisitingTeamWins, &live.Draws, &live.HomeTeamRecentPerformance, &live.VisitingTeamRecentPerformance, &live.HomeTeamOdds, &live.VisitingTeamOdds, &live.DrawOdds)
 		if err != nil {
 			return c.String(http.StatusInternalServerError, err.Error())
 		}
 
-		// Converte a string de data e hora para time.Time
+		// Converte a string de data/hora para um time.Time
 		live.DateMatch, err = time.Parse("2006-01-02 15:04:05", dateMatch)
+		if err != nil {
+			return c.String(http.StatusInternalServerError, err.Error())
+		}
+
+		// Busca as equipes e o campeonato correspondentes no banco de dados
+		live.HomeTeam, err = FetchTeamByID(strconv.Itoa(idTeam1))
+		if err != nil {
+			return c.String(http.StatusInternalServerError, err.Error())
+		}
+		live.VisitingTeam, err = FetchTeamByID(strconv.Itoa(idTeam2))
+		if err != nil {
+			return c.String(http.StatusInternalServerError, err.Error())
+		}
+		live.Championship, err = FetchChampionshipByID(strconv.Itoa(idChampionship))
 		if err != nil {
 			return c.String(http.StatusInternalServerError, err.Error())
 		}
@@ -423,6 +421,7 @@ func GetAllLivesToday(c echo.Context) error {
 		// Adiciona a partida ao vivo ao slice de partidas ao vivo
 		lives = append(lives, live)
 	}
+
 	// Fecha o conjunto de resultados
 	rows.Close()
 
@@ -436,19 +435,83 @@ func GetAllLivesToday(c echo.Context) error {
 	return c.JSONBlob(http.StatusOK, livesJSON)
 }
 
+// FetchChampionshipByID godoc
+// @Summary Fetch a championship by ID
+// @Description Fetch a championship by ID
+// @Tags Championships
+// @Accept  json
+// @Produce  json
+// @Param id path string true "Championship ID"
+// @Success 200 {object} structs.Championship
+// @Router /api/v1/championship/fetchbyid/{id} [get]
+func FetchChampionshipByID(id string) (structs.Championship, error) {
+	// Conecta ao banco de dados
+	db, err := db.ConnectDB()
+	if err != nil {
+		return structs.Championship{}, err
+	}
+
+	// Certifique-se de que a conexão será fechada no final desta função
+	defer db.Close()
+
+	// Executa a consulta SQL que seleciona o campeonato com o ID informado
+	row := db.QueryRow("SELECT Id, Name, COALESCE(Year, 0) FROM Championship WHERE Id = ?", id)
+
+	// Cria uma variável do tipo Championship para armazenar os dados do campeonato
+	var championship structs.Championship
+
+	// Lê o resultado da consulta e preenche a estrutura do campeonato com os dados obtidos
+	err = row.Scan(&championship.Id, &championship.Name, &championship.Year)
+	if err != nil {
+		// Lida com o erro
+		return championship, err
+	}
+
+	return championship, nil
+}
+
+// FetchTeamByID godoc
+// @Summary Fetch a team by ID
+// @Description Fetch a team by ID
+// @Tags Teams
+// @Accept  json
+// @Produce  json
+// @Param id path string true "Team ID"
+// @Success 200 {object} structs.Team
+// @Router /api/v1/team/fetchbyid/{id} [get]
+func FetchTeamByID(id string) (structs.Team, error) {
+	// Conecta ao banco de dados
+	db, err := db.ConnectDB()
+	if err != nil {
+		return structs.Team{}, err
+	}
+
+	// Certifique-se de que a conexão será fechada no final desta função
+	defer db.Close()
+
+	// Executa a consulta SQL que seleciona o time com o ID informado
+	row := db.QueryRow("SELECT Name, City, Country, ID, COALESCE(Color1, '') as Color1 FROM Team WHERE id = ?", id)
+
+	// Cria uma variável do tipo Team para armazenar os dados do time
+	var team structs.Team
+
+	// Lê o resultado da consulta e preenche a estrutura do time com os dados obtidos
+	err = row.Scan(&team.Name, &team.City, &team.Country, &team.ID, &team.Color1)
+	if err != nil {
+		// Lida com o erro
+		return team, err
+	}
+
+	return team, nil
+}
+
 // InsertLive godoc
 // @Summary Insert a live match
 // @Description Insert a live match
 // @Tags Lives
 // @Accept  json
 // @Produce  json
-// @Param idteam1 query int true "Team ID 1"
-// @Param idteam2 query int true "Team ID 2"
-// @Param idchampionship query int true "IdChampionship"
-// @Param datematch query string true "Date of Match"
-// @Param stadium query string true "Stadium"
-// @Param teampoints1 query int true "Team Points 1"
-// @Param teampoints2 query int true "Team Points 2"
+// @Param live body structs.Live true "Live Match"
 // @Success 200 {object} structs.Live
 // @Router /api/v1/live/insert [post]
 func InsertLive(c echo.Context) error {
@@ -461,36 +524,14 @@ func InsertLive(c echo.Context) error {
 	// Certifique-se de que a conexão será fechada no final desta função
 	defer db.Close()
 
-	// Obtém os dados da partida ao vivo da URL
-	idteam1, _ := strconv.Atoi(c.QueryParam("idteam1"))
-	idteam2, _ := strconv.Atoi(c.QueryParam("idteam2"))
-	idchampionship, _ := strconv.Atoi(c.QueryParam("idchampionship"))
-	datematch := c.QueryParam("datematch")
-	stadium := c.QueryParam("stadium")
-	teampoints1, _ := strconv.Atoi(c.QueryParam("teampoints1"))
-	teampoints2, _ := strconv.Atoi(c.QueryParam("teampoints2"))
-
-	// Converte a string datematch para o tipo time.Time
-	layout := "02/01/2006 15:04"
-	parsedDate, err := time.Parse(layout, datematch)
-	if err != nil {
-		return c.String(http.StatusInternalServerError, err.Error())
-	}
-
-	// Cria um novo struct Live com os dados obtidos
-	live := structs.Live{
-		ID:             0,
-		IdTeam1:        idteam1,
-		IdTeam2:        idteam2,
-		IdChampionship: idchampionship,
-		DateMatch:      parsedDate,
-		Stadium:        stadium,
-		TeamPoints1:    teampoints1,
-		TeamPoints2:    teampoints2,
+	// Obtém os dados da partida ao vivo do corpo da solicitação
+	live := new(structs.Live)
+	if err := c.Bind(live); err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 
 	// Executa a consulta SQL
-	_, err = db.Exec("INSERT INTO Live (id, idteam1, idteam2, idchampionship, datematch, stadium, teampoints1, teampoints2) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", live.ID, live.IdTeam1, live.IdTeam2, live.IdChampionship, live.DateMatch, live.Stadium, live.TeamPoints1, live.TeamPoints2)
+	_, err = db.Exec("INSERT INTO Live (HomeTeam, VisitingTeam, Championship, DateMatch, Stadium, TeamPoints1, TeamPoints2) VALUES (?, ?, ?, ?, ?, ?, ?)", live.HomeTeam, live.VisitingTeam, live.Championship, live.DateMatch, live.Stadium, live.TeamPoints1, live.TeamPoints2)
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
@@ -505,14 +546,7 @@ func InsertLive(c echo.Context) error {
 // @Tags Lives
 // @Accept  json
 // @Produce  json
-// @Param id query int true "Match ID"
-// @Param idteam1 query int true "Team ID 1"
-// @Param idteam2 query int true "Team ID 2"
-// @Param idchampionship query int true "Championship ID"
-// @Param datematch query string true "Date of Match"
-// @Param stadium query string true "Stadium"
-// @Param teampoints1 query int true "Team Points 1"
-// @Param teampoints2 query int true "Team Points 2"
+// @Param live body structs.Live true "Live Match"
 // @Success 200 {string} string "Partida ao vivo atualizada com sucesso."
 // @Router /api/v1/live/update [put]
 func UpdateLive(c echo.Context) error {
@@ -525,44 +559,15 @@ func UpdateLive(c echo.Context) error {
 	// Certifique-se de que a conexão será fechada no final desta função
 	defer db.Close()
 
-	// Obtém os dados da partida ao vivo da URL
-	id, err := strconv.Atoi(c.QueryParam("id"))
-	if err != nil {
-		return c.String(http.StatusBadRequest, "ID inválido")
-	}
-	idteam1, err := strconv.Atoi(c.QueryParam("idteam1"))
-	if err != nil {
-		return c.String(http.StatusBadRequest, "ID da equipe 1 inválido")
-	}
-	idteam2, err := strconv.Atoi(c.QueryParam("idteam2"))
-	if err != nil {
-		return c.String(http.StatusBadRequest, "ID da equipe 2 inválido")
-	}
-	idchampionship, err := strconv.Atoi(c.QueryParam("idchampionship"))
-	if err != nil {
-		return c.String(http.StatusBadRequest, "ID do campeonato inválido")
-	}
-	datematch := c.QueryParam("datematch")
-	stadium := c.QueryParam("stadium")
-	teampoints1, err := strconv.Atoi(c.QueryParam("teampoints1"))
-	if err != nil {
-		return c.String(http.StatusBadRequest, "Pontos da equipe 1 inválidos")
-	}
-	teampoints2, err := strconv.Atoi(c.QueryParam("teampoints2"))
-	if err != nil {
-		return c.String(http.StatusBadRequest, "Pontos da equipe 2 inválidos")
-	}
-
-	// Converte a string datematch para o tipo time.Time
-	layout := "02/01/2006 15:04"
-	parsedDate, err := time.Parse(layout, datematch)
-	if err != nil {
-		return c.String(http.StatusInternalServerError, err.Error())
+	// Obtém os dados da partida ao vivo do corpo da solicitação
+	live := new(structs.Live)
+	if err := c.Bind(live); err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 
 	// Verifica se a partida ao vivo existe
 	var count int
-	err = db.QueryRow("SELECT COUNT(*) FROM Live WHERE id = ?", id).Scan(&count)
+	err = db.QueryRow("SELECT COUNT(*) FROM Live WHERE id = ?", live.ID).Scan(&count)
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
@@ -570,20 +575,8 @@ func UpdateLive(c echo.Context) error {
 		return c.String(http.StatusNotFound, "Partida ao vivo não encontrada")
 	}
 
-	// Cria um novo struct Live com os dados obtidos
-	live := structs.Live{
-		ID:             id,
-		IdTeam1:        idteam1,
-		IdTeam2:        idteam2,
-		IdChampionship: idchampionship,
-		DateMatch:      parsedDate,
-		Stadium:        stadium,
-		TeamPoints1:    teampoints1,
-		TeamPoints2:    teampoints2,
-	}
-
 	// Executa a consulta SQL
-	_, err = db.Exec("UPDATE Live SET idteam1 = ?, idteam2 = ?, idchampionship = ?, datematch = ?, stadium = ?, teampoints1 = ?, teampoints2 = ? WHERE id = ?", live.IdTeam1, live.IdTeam2, live.IdChampionship, live.DateMatch, live.Stadium, live.TeamPoints1, live.TeamPoints2, live.ID)
+	_, err = db.Exec("UPDATE Live SET HomeTeam = ?, VisitingTeam = ?, Championship = ?, DateMatch = ?, Stadium = ?, TeamPoints1 = ?, TeamPoints2 = ? WHERE id = ?", live.HomeTeam, live.VisitingTeam, live.Championship, live.DateMatch, live.Stadium, live.TeamPoints1, live.TeamPoints2, live.ID)
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
@@ -815,13 +808,12 @@ func GetByIdTeam(c echo.Context) error {
 // @Tags Lives
 // @Accept  json
 // @Produce  json
-// @Param id path string true "Live ID"
+// @Param live body structs.Live true "Live Match"
 // @Success 200 {object} structs.Live
-// @Router /api/v1/live/getbyid/{id} [get]
+// @Router /api/v1/live/getbyid [get]
 func GetByIdLive(c echo.Context) error {
 	// Conecta ao banco de dados
 	db, err := db.ConnectDB()
-
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
@@ -829,17 +821,17 @@ func GetByIdLive(c echo.Context) error {
 	// Certifique-se de que a conexão será fechada no final desta função
 	defer db.Close()
 
-	// Obtém o valor do parâmetro id da URL da rota
-	id := c.Param("id")
+	// Obtém os dados da partida ao vivo do corpo da solicitação
+	live := new(structs.Live)
+	if err := c.Bind(live); err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
 
 	// Executa a consulta SQL que seleciona a partida ao vivo com o ID informado
-	row := db.QueryRow("SELECT * FROM Live WHERE id = ?", id)
-
-	// Cria uma variável do tipo Live para armazenar os dados da partida ao vivo
-	var live structs.Live
+	row := db.QueryRow("SELECT * FROM Live WHERE id = ?", live.ID)
 
 	// Lê o resultado da consulta e preenche a estrutura da partida ao vivo com os dados obtidos
-	err = row.Scan(&live.ID, &live.IdTeam1, &live.IdTeam2, &live.IdChampionship, &live.DateMatch, &live.Stadium, &live.StatusMatch, &live.GameTime, &live.TeamPoints1, &live.TeamPoints2, &live.HomeTeamWins, &live.VisitingTeamWins, &live.Draws, &live.HomeTeamRecentPerformance, &live.VisitingTeamRecentPerformance, &live.HomeTeamOdds, &live.VisitingTeamOdds, &live.DrawOdds)
+	err = row.Scan(&live.ID, &live.HomeTeam, &live.VisitingTeam, &live.Championship, &live.DateMatch, &live.Stadium, &live.StatusMatch, &live.TeamPoints1, &live.TeamPoints2, &live.HomeTeamWins, &live.VisitingTeamWins, &live.Draws, &live.HomeTeamRecentPerformance, &live.VisitingTeamRecentPerformance, &live.HomeTeamOdds, &live.VisitingTeamOdds, &live.DrawOdds)
 	if err != nil {
 		// Lida com o erro
 		return c.String(http.StatusInternalServerError, err.Error())

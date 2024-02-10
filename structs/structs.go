@@ -28,25 +28,23 @@ type Player struct {
 }
 
 type Live struct {
-	ID                            int       `json:"id"`
-	IdTeam1                       int       `json:"idteam1"`
-	IdTeam2                       int       `json:"idteam2"`
-	IdChampionship                int       `json:"idchampionship"`
-	DateMatch                     time.Time `json:"datematch"`
-	Stadium                       string    `json:"stadium"`
-	StatusMatch                   string    `json:"statusmatch"`
-	GameTime                      int       `json:"gametime"`
-	TeamPoints1                   int       `json:"teampoints1"`
-	TeamPoints2                   int       `json:"teampoints2"`
-	HomeTeamWins                  int       `json:"hometeamwins"`
-	VisitingTeamWins              int       `json:"visitingteamwins"`
-	Draws                         int       `json:"draws"`
-	HomeTeamRecentPerformance     float64   `json:"hometeamrecentperformance"`
-	VisitingTeamRecentPerformance float64   `json:"visitingteamrecentperformance"`
-	HomeTeamOdds                  float64   `json:"hometeamodds"`
-	VisitingTeamOdds              float64   `json:"visitingteamodds"`
-	DrawOdds                      float64   `json:"drawodds"`
-	Bets                          []Bet     `json:"bets"`
+	ID                            int          `json:"id"`
+	HomeTeam                      Team         `json:"hometeam"`
+	VisitingTeam                  Team         `json:"visitingteam"`
+	Championship                  Championship `json:"championship"`
+	DateMatch                     time.Time    `json:"datematch"`
+	Stadium                       string       `json:"stadium"`
+	StatusMatch                   string       `json:"statusmatch"`
+	TeamPoints1                   int          `json:"teampoints1"`
+	TeamPoints2                   int          `json:"teampoints2"`
+	HomeTeamWins                  int          `json:"hometeamwins"`
+	VisitingTeamWins              int          `json:"visitingteamwins"`
+	Draws                         int          `json:"draws"`
+	HomeTeamRecentPerformance     float64      `json:"hometeamrecentperformance"`
+	VisitingTeamRecentPerformance float64      `json:"visitingteamrecentperformance"`
+	HomeTeamOdds                  float64      `json:"hometeamodds"`
+	VisitingTeamOdds              float64      `json:"visitingteamodds"`
+	DrawOdds                      float64      `json:"drawodds"`
 }
 
 // Structure that represents a user
