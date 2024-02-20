@@ -80,8 +80,6 @@ definitions:
     properties:
       city:
         type: string
-      color1:
-        type: string
       country:
         type: string
       id:
@@ -674,16 +672,16 @@ paths:
   /api/v1/user/login:
     post:
       consumes:
-      - application/json
-      description: Login user
+      - multipart/form-data
+      description: Login a new user with username and password
       parameters:
       - description: Username
-        in: query
+        in: formData
         name: username
         required: true
         type: string
       - description: Password
-        in: query
+        in: formData
         name: password
         required: true
         type: string
@@ -694,25 +692,41 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/structs.User'
-      summary: Login user
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Login a new user
       tags:
       - Users
   /api/v1/user/register:
     post:
       consumes:
-      - application/json
-      description: Register user
+      - multipart/form-data
+      description: Register a new user with username, password and an optional photo
       parameters:
       - description: Username
-        in: query
+        in: formData
         name: username
         required: true
         type: string
       - description: Password
-        in: query
+        in: formData
         name: password
         required: true
         type: string
+      - description: User Photo
+        in: formData
+        name: photo
+        type: file
       produces:
       - application/json
       responses:
@@ -720,7 +734,19 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/structs.User'
-      summary: Register user
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Register a new user
       tags:
       - Users
 schemes:

@@ -5,6 +5,7 @@ import (
 	"apiSquads/structs"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"strconv"
 	"time"
@@ -15,6 +16,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"golang.org/x/crypto/bcrypt"
 
+	"bytes"
 	_ "github.com/go-sql-driver/mysql"
 )
 
@@ -184,15 +186,17 @@ func GetAllMatches(c echo.Context) error {
 	return c.JSONBlob(http.StatusOK, livesJSON)
 }
 
-// User godoc
-// @Summary Login user
-// @Description Login user
+// Login godoc
+// @Summary Login a new user
+// @Description Login a new user with username and password
 // @Tags Users
-// @Accept  json
+// @Accept  multipart/form-data
 // @Produce  json
-// @Param   username     query    string     true        "Username"
-// @Param   password     query    string     true        "Password"
+// @Param username formData string true "Username"
+// @Param password formData string true "Password"
 // @Success 200 {object} structs.User
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
 // @Router /api/v1/user/login [post]
 func Login(c echo.Context) error {
 	// Conecta ao banco de dados
@@ -212,7 +216,7 @@ func Login(c echo.Context) error {
 
 	// Verifica se o nome de usuário e a senha foram fornecidos
 	if u.Username == "" || u.Password == "" {
-		return c.String(http.StatusBadRequest, "Username and password must be provided")
+		return c.String(http.StatusBadRequest, "Nome de usuário e senha devem ser fornecidos")
 	}
 
 	// Executa a consulta SQL
@@ -245,15 +249,18 @@ func Login(c echo.Context) error {
 	return echo.ErrUnauthorized
 }
 
-// User godoc
-// @Summary Register user
-// @Description Register user
+// Register godoc
+// @Summary Register a new user
+// @Description Register a new user with username, password and an optional photo
 // @Tags Users
-// @Accept json
-// @Produce json
-// @Param username query string true "Username"
-// @Param password query string true "Password"
+// @Accept  multipart/form-data
+// @Produce  json
+// @Param username formData string true "Username"
+// @Param password formData string true "Password"
+// @Param photo formData file false "User Photo"
 // @Success 200 {object} structs.User
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
 // @Router /api/v1/user/register [post]
 func Register(c echo.Context) error {
 	// Conecta ao banco de dados
@@ -282,8 +289,26 @@ func Register(c echo.Context) error {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
 
+	// Pega a foto do corpo da solicitação, se houver
+	var photoBytes []byte
+	photo, err := c.FormFile("photo")
+	if err == nil {
+		src, err := photo.Open()
+		if err != nil {
+			return c.String(http.StatusBadRequest, "Failed to open photo")
+		}
+		defer src.Close()
+
+		// Lê a foto em um array de bytes
+		buf := bytes.NewBuffer(nil)
+		if _, err := io.Copy(buf, src); err != nil {
+			return c.String(http.StatusBadRequest, "Failed to read photo")
+		}
+		photoBytes = buf.Bytes()
+	}
+
 	// Executa a consulta SQL para inserir o novo usuário
-	_, err = db.Exec("INSERT INTO Users (Username, Password) VALUES (?, ?)", u.Username, hashedPassword)
+	_, err = db.Exec("INSERT INTO User (Username, Password, Photo) VALUES (?, ?, ?)", u.Username, hashedPassword, photoBytes)
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
@@ -914,7 +939,7 @@ func GetByIdPlayer(c echo.Context) error {
 // @Success 200 {array} structs.Player
 // @Router /api/v1/player/getbyidteam/{idteam} [get]
 func GetByIdTeamPlayer(c echo.Context) error {
-	// Conecta ao banco de dados
+	// Connect to the database
 	db, err := db.ConnectDB()
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
@@ -923,50 +948,39 @@ func GetByIdTeamPlayer(c echo.Context) error {
 	// Certifique-se de que a conexão será fechada no final desta função
 	defer db.Close()
 
-	// Obtém o valor do parâmetro idteam da URL da rota
 	idteam := c.Param("idteam")
 
-	// Executa a consulta SQL que seleciona todos os jogadores do time informado
-	rows, err := db.Query("SELECT Name, City, Country, Birth, IdTeam, ID, COALESCE(Height, '0.00') as Height, COALESCE(Position, '') as Position FROM Player WHERE IdTeam = ?", idteam)
+	rows, err := db.Query("SELECT Name, City, Country, COALESCE(Birth, '') as Birth, IdTeam, ID, COALESCE(Height, '0.00') as Height, COALESCE(Position, '') as Position FROM Player WHERE IdTeam = ?", idteam)
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
 
-	// Cria um slice para armazenar os jogadores
 	players := []structs.Player{}
 
-	// Lê os resultados
 	for rows.Next() {
-		// Cria um jogador vazio
 		var player structs.Player
-
-		// Preenche o jogador com os dados da linha
 		var birthStr string
 		err = rows.Scan(&player.Name, &player.City, &player.Country, &birthStr, &player.IdTeam, &player.ID, &player.Height, &player.Position)
 		if err != nil {
 			return c.String(http.StatusInternalServerError, err.Error())
 		}
-		if birthStr != "0000-00-00" {
+		if birthStr != "0000-00-00" && birthStr != "" {
 			player.Birth, err = time.Parse("2006-01-02", birthStr)
 			if err != nil {
 				return c.String(http.StatusInternalServerError, err.Error())
 			}
 		}
 
-		// Adiciona o jogador ao slice de jogadores
 		players = append(players, player)
 	}
 
-	// Fecha o conjunto de resultados
 	rows.Close()
 
-	// Converte o slice de jogadores em JSON
 	playersJSON, err := json.Marshal(players)
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
 
-	// Envia a resposta em JSON
 	return c.JSONBlob(http.StatusOK, playersJSON)
 }
 

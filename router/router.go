@@ -43,22 +43,24 @@ func defineUserRoutes(g *echo.Group) {
 	// @Tags Users
 	// @Accept  json
 	// @Produce  json
-	// @Param username query string true "Username"
-	// @Param password query string true "Password"
+	// @Param username body string true "Username"
+	// @Param password body string true "Password"
 	// @Success 200 {object} structs.User
 	// @Router /api/v1/user/login [post]
 	g.POST("/user/login", Login)
 
 	// @Summary Register user
-	// @Description Register user
+	// @Description Register a new user
 	// @Tags Users
-	// @Accept  json
+	// @Accept  multipart/form-data
 	// @Produce  json
-	// @Param username query string true "Username"
-	// @Param password query string true "Password"
-	// @Success 200 {object} structs.User
-	// @Router /api/v1/user/register [post]
+	// @Param username formData string true "Username"
+	// @Param password formData string true "Password"
+	// @Param photo formData file false "User Photo"
+	// @Success 200 {object} User
+	// @Router /user/register [post]
 	g.POST("/user/register", Register)
+
 }
 
 func defineLiveRoutes(g *echo.Group) {

@@ -1,10 +1,15 @@
 package structs
 
 import (
+	"database/sql"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 )
+
+type NullFloat64 struct {
+	sql.NullFloat64
+}
 
 // Structure that represents a team
 type Team struct {
@@ -45,11 +50,11 @@ type Live struct {
 
 // Structure that represents a user
 type User struct {
-	ID       int     `json:"id"`
-	Username string  `json:"username"`
-	Password string  `json:"password"`
-	Photo    []byte  `json:"photo"`
-	Cash     float64 `json:"cash"`
+	ID       int      `json:"id" form:"id"`
+	Username string   `json:"username" form:"username"`
+	Password string   `json:"password" form:"password"`
+	Photo    []byte   `json:"photo" form:"photo"`
+	Cash     *float64 `json:"cash" form:"cash"`
 }
 
 type Championship struct {

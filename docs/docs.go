@@ -863,9 +863,9 @@ const docTemplate = `{
         },
         "/api/v1/user/login": {
             "post": {
-                "description": "Login user",
+                "description": "Login a new user with username and password",
                 "consumes": [
-                    "application/json"
+                    "multipart/form-data"
                 ],
                 "produces": [
                     "application/json"
@@ -873,20 +873,20 @@ const docTemplate = `{
                 "tags": [
                     "Users"
                 ],
-                "summary": "Login user",
+                "summary": "Login a new user",
                 "parameters": [
                     {
                         "type": "string",
                         "description": "Username",
                         "name": "username",
-                        "in": "query",
+                        "in": "formData",
                         "required": true
                     },
                     {
                         "type": "string",
                         "description": "Password",
                         "name": "password",
-                        "in": "query",
+                        "in": "formData",
                         "required": true
                     }
                 ],
@@ -896,15 +896,33 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/structs.User"
                         }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
                     }
                 }
             }
         },
         "/api/v1/user/register": {
             "post": {
-                "description": "Register user",
+                "description": "Register a new user with username, password and an optional photo",
                 "consumes": [
-                    "application/json"
+                    "multipart/form-data"
                 ],
                 "produces": [
                     "application/json"
@@ -912,21 +930,27 @@ const docTemplate = `{
                 "tags": [
                     "Users"
                 ],
-                "summary": "Register user",
+                "summary": "Register a new user",
                 "parameters": [
                     {
                         "type": "string",
                         "description": "Username",
                         "name": "username",
-                        "in": "query",
+                        "in": "formData",
                         "required": true
                     },
                     {
                         "type": "string",
                         "description": "Password",
                         "name": "password",
-                        "in": "query",
+                        "in": "formData",
                         "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "User Photo",
+                        "name": "photo",
+                        "in": "formData"
                     }
                 ],
                 "responses": {
@@ -934,6 +958,24 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/structs.User"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     }
                 }
@@ -1063,9 +1105,6 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "city": {
-                    "type": "string"
-                },
-                "color1": {
                     "type": "string"
                 },
                 "country": {
