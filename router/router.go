@@ -136,6 +136,54 @@ func defineLiveRoutes(g *echo.Group) {
 
 }
 
+func defineBetRoutes(g *echo.Group) {
+
+	// @Summary Obter uma aposta por ID
+	// @Description Obter uma aposta por ID
+	// @Tags Bets
+	// @Accept  json
+	// @Produce  json
+	// @Success 200 {object} structs.Bet
+	// @Router /api/v1/bet/getbyid/{id} [get]
+	g.GET("/bet/getbyid/:id", GetBetById)
+
+	// @Summary Obter todas as apostas por ID de usuário
+	// @Description Obter todas as apostas por ID de usuário
+	// @Tags Bets
+	// @Accept  json
+	// @Produce  json
+	// @Success 200 {array} structs.Bet
+	// @Router /api/v1/bet/getallbyuserid/:id  [get]
+	g.GET("/bet/getallbyuserid/:id", GetAllBetsByUserId)
+
+	// @Summary Inserir uma nova aposta
+	// @Description Inserir uma nova aposta
+	// @Tags Bets
+	// @Accept  json
+	// @Produce  json
+	// @Param userid query int true "User ID"
+	// @Param matchid query int true "Match ID"
+	// @Param amount query float64 true "Amount"
+	// @Param prediction query string true "Prediction"
+	// @Success 200 {object} structs.Bet
+	// @Router /api/v1/bet/insert [post]
+	g.POST("/bet/insert", InsertBet)
+
+	// @Summary Atualizar uma aposta
+	// @Description Atualizar uma aposta
+	// @Tags Bets
+	// @Accept  json
+	// @Produce  json
+	// @Param id query int true "Bet ID"
+	// @Param userid query int true "User ID"
+	// @Param matchid query int true "Match ID"
+	// @Param amount query float64 true "Amount"
+	// @Param prediction query string true "Prediction"
+	// @Success 200 {object} structs.Bet
+	// @Router /api/v1/bet/update [put]
+	g.PUT("/bet/update", UpdateBet)
+}
+
 func defineTeamRoutes(g *echo.Group) {
 	// @Summary Obter todos os times
 	// @Description Obter todos os times
@@ -304,12 +352,15 @@ func definePlayerRoutes(g *echo.Group) {
 	// @Tags Players
 	// @Accept  json
 	// @Produce  json
-	// @Param id player query int true "ID Team"
-	// @Param name query string true "Team Name"
-	// @Param city query string true "City"
-	// @Param country query string true "Country"
-	// @Param height query float true "Height"
-	// @Success 200 {object} structs.Player
+	// @Param id query int true "Player ID"
+	// @Param name query string true "Player Name"
+	// @Param idteam query int false "Id Team"
+	// @Param city query string false "City"
+	// @Param country query string false "Country"
+	// @Param birth query string false "Birth" example="DD-MM-AAAA"
+	// @Param height query string false "Height"
+	// @Param position query string false "Position"
+	// @Success 200 {object} Player
 	// @Router /api/v1/player/update [put]
 	g.PUT("/player/update", UpdatePlayer)
 

@@ -3,22 +3,207 @@ package router
 import (
 	"apiSquads/db"
 	"apiSquads/structs"
+	"crypto/rand"
+	"database/sql"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"strconv"
 	"time"
 
-	"database/sql"
+	"github.com/dgrijalva/jwt-go"
+
+	"bytes"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/labstack/echo/v4"
 	"golang.org/x/crypto/bcrypt"
-
-	"bytes"
-	_ "github.com/go-sql-driver/mysql"
 )
+
+// GetAllBetsByUserId godoc
+// @Summary Get all bets by user ID
+// @Description Get all bets by user ID
+// @Tags Bets
+// @Accept  json
+// @Produce  json
+// @Param id path string true "User ID"
+// @Success 200 {array} structs.Bet
+// @Router /api/v1/bet/getallbyuserid/{id} [get]
+func GetAllBetsByUserId(c echo.Context) error {
+	// Connect to the database
+	db, err := db.ConnectDB()
+
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	// Make sure the connection will be closed at the end of this function
+	defer db.Close()
+
+	// Get the value of the id parameter from the URL route
+	id := c.Param("id")
+
+	// Execute the SQL query that selects all bets with the provided user ID
+	rows, err := db.Query("SELECT Id, MatchId, SelectedOutcome, BetAmount, PossibleReturn FROM Bet WHERE UserId = ?", id)
+	if err != nil {
+		// Handle the error
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	// Create a slice of Bet to store the bets data
+	var bets []structs.Bet
+
+	// Loop through the rows and fill the bets slice with the obtained data
+	for rows.Next() {
+		var bet structs.Bet
+		err = rows.Scan(&bet.Id, &bet.MatchId, &bet.SelectedOutcome, &bet.BetAmount, &bet.PossibleReturn)
+		if err != nil {
+			// Handle the error
+			return c.String(http.StatusInternalServerError, err.Error())
+		}
+		bets = append(bets, bet)
+	}
+
+	// Convert the bets slice into JSON
+	betsJSON, err := json.Marshal(bets)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	// Send the response in JSON
+	return c.JSONBlob(http.StatusOK, betsJSON)
+}
+
+// UpdateBet godoc
+// @Summary Update a bet
+// @Description Update a bet
+// @Tags Bets
+// @Accept  json
+// @Produce  json
+// @Param id query int true "Bet ID"
+// @Param userid query int true "User ID"
+// @Param matchid query int true "Match ID"
+// @Param amount query float64 true "Amount"
+// @Param prediction query string true "Prediction"
+// @Success 200 {object} structs.Bet
+// @Router /api/v1/bet/update [put]
+func UpdateBet(c echo.Context) error {
+	// Connect to the database
+	db, err := db.ConnectDB()
+
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	// Make sure the connection will be closed at the end of this function
+	defer db.Close()
+
+	// Get the values of the parameters from the request
+	id, _ := strconv.Atoi(c.QueryParam("id"))
+	userid, _ := strconv.Atoi(c.QueryParam("userid"))
+	matchid, _ := strconv.Atoi(c.QueryParam("matchid"))
+	amount, _ := strconv.ParseFloat(c.QueryParam("amount"), 64)
+	prediction := c.QueryParam("prediction")
+
+	// Execute the SQL query that updates the bet with the provided parameters
+	_, err = db.Exec("UPDATE Bet SET UserId = ?, MatchId = ?, BetAmount = ?, SelectedOutcome = ? WHERE Id = ?", userid, matchid, amount, prediction, id)
+	if err != nil {
+		// Handle the error
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	// If everything goes well, return a success message
+	return c.JSON(http.StatusOK, map[string]string{"message": "Bet successfully updated"})
+}
+
+// InsertBet godoc
+// @Summary Insert a new bet
+// @Description Insert a new bet
+// @Tags Bets
+// @Accept  json
+// @Produce  json
+// @Param userid query int true "User ID"
+// @Param matchid query int true "Match ID"
+// @Param amount query float64 true "Amount"
+// @Param prediction query string true "Prediction"
+// @Success 200 {object} structs.Bet
+// @Router /api/v1/bet/insert [post]
+func InsertBet(c echo.Context) error {
+	// Connect to the database
+	db, err := db.ConnectDB()
+
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	// Make sure the connection will be closed at the end of this function
+	defer db.Close()
+
+	// Get the values of the parameters from the request
+	userid, _ := strconv.Atoi(c.QueryParam("userid"))
+	matchid, _ := strconv.Atoi(c.QueryParam("matchid"))
+	amount, _ := strconv.ParseFloat(c.QueryParam("amount"), 64)
+	prediction := c.QueryParam("prediction")
+
+	// Execute the SQL query that inserts a new bet with the provided parameters
+	_, err = db.Exec("INSERT INTO Bet (UserId, MatchId, BetAmount, SelectedOutcome) VALUES (?, ?, ?, ?)", userid, matchid, amount, prediction)
+	if err != nil {
+		// Handle the error
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	// If everything goes well, return a success message
+	return c.JSON(http.StatusOK, map[string]string{"message": "Bet successfully inserted"})
+}
+
+// GetByIdBet godoc
+// @Summary Get a bet by ID
+// @Description Get a bet by ID
+// @Tags Bets
+// @Accept  json
+// @Produce  json
+// @Param id path string true "Bet ID"
+// @Success 200 {object} structs.Bet
+// @Router /api/v1/bet/getbyid/{id} [get]
+func GetBetById(c echo.Context) error {
+	// Connect to the database
+	db, err := db.ConnectDB()
+
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	// Make sure the connection will be closed at the end of this function
+	defer db.Close()
+
+	// Get the value of the id parameter from the URL route
+	id := c.Param("id")
+
+	// Execute the SQL query that selects the bet with the provided ID
+	row := db.QueryRow("SELECT MatchId, UserId, SelectedOutcome, BetAmount, PossibleReturn FROM Bet WHERE id = ?", id)
+
+	// Create a variable of type Bet to store the bet data
+	var bet structs.Bet
+
+	// Read the result of the query and fill the bet structure with the obtained data
+	err = row.Scan(&bet.MatchId, &bet.UserId, &bet.SelectedOutcome, &bet.BetAmount, &bet.PossibleReturn)
+	if err != nil {
+		// Handle the error
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	// Convert the bet structure into JSON
+	betJSON, err := json.Marshal(bet)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+
+	// Send the response in JSON
+	return c.JSONBlob(http.StatusOK, betJSON)
+}
 
 // GetAllTeams godoc
 // @Summary Get all teams
@@ -186,6 +371,15 @@ func GetAllMatches(c echo.Context) error {
 	return c.JSONBlob(http.StatusOK, livesJSON)
 }
 
+func generateSecretKey() string {
+	key := make([]byte, 32)
+	_, err := rand.Read(key)
+	if err != nil {
+		log.Fatalf("Erro ao gerar a chave secreta: %v", err)
+	}
+	return base64.StdEncoding.EncodeToString(key)
+}
+
 // Login godoc
 // @Summary Login a new user
 // @Description Login a new user with username and password
@@ -202,7 +396,8 @@ func Login(c echo.Context) error {
 	// Conecta ao banco de dados
 	db, err := db.ConnectDB()
 	if err != nil {
-		return c.String(http.StatusInternalServerError, err.Error())
+		log.Printf("Erro ao conectar ao banco de dados: %v", err)
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Erro interno do servidor"})
 	}
 
 	// Certifique-se de que a conexão será fechada no final desta função
@@ -211,12 +406,13 @@ func Login(c echo.Context) error {
 	// Pega o nome de usuário e a senha do corpo da solicitação
 	u := new(structs.User)
 	if err := c.Bind(u); err != nil {
-		return err
+		log.Printf("Erro ao fazer bind dos dados do usuário: %v", err)
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Dados inválidos fornecidos"})
 	}
 
 	// Verifica se o nome de usuário e a senha foram fornecidos
 	if u.Username == "" || u.Password == "" {
-		return c.String(http.StatusBadRequest, "Nome de usuário e senha devem ser fornecidos")
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Nome de usuário e senha devem ser fornecidos"})
 	}
 
 	// Executa a consulta SQL
@@ -228,10 +424,11 @@ func Login(c echo.Context) error {
 	err = row.Scan(&userInDb.ID, &userInDb.Username, &userInDb.Password, &userInDb.Photo, &userInDb.Cash)
 	if err == sql.ErrNoRows {
 		// Nenhum usuário com o nome de usuário fornecido foi encontrado
-		return echo.ErrUnauthorized
+		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Nome de usuário ou senha inválidos"})
 	} else if err != nil {
 		// Um erro diferente ocorreu
-		return c.String(http.StatusInternalServerError, err.Error())
+		log.Printf("Erro ao executar a consulta SQL: %v", err)
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Erro interno do servidor"})
 	}
 
 	// Verifica a senha
@@ -239,14 +436,32 @@ func Login(c echo.Context) error {
 	if err == nil {
 		// A senha está correta, então faça o login do usuário
 
+		// Gera um token JWT
+		token := jwt.New(jwt.SigningMethodHS256)
+
+		// Armazena as reivindicações no token
+		claims := token.Claims.(jwt.MapClaims)
+		claims["name"] = userInDb.Username
+		claims["admin"] = true // ou qualquer outra reivindicação que você queira
+
+		// Assina o token com uma chave secreta
+		secretKey := generateSecretKey()
+		tokenString, _ := token.SignedString([]byte(secretKey))
+
 		// Remova a senha do objeto userInDb antes de retorná-lo
 		userInDb.Password = ""
-
-		return c.JSON(http.StatusOK, userInDb)
+		// Retorna os detalhes do usuário e o token
+		return c.JSON(http.StatusOK, map[string]interface{}{
+			"id":       userInDb.ID,
+			"username": userInDb.Username,
+			"photo":    base64.StdEncoding.EncodeToString(userInDb.Photo),
+			"cash":     userInDb.Cash,
+			"token":    tokenString,
+		})
 	}
 
 	// Se chegamos até aqui, o login falhou
-	return echo.ErrUnauthorized
+	return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Nome de usuário ou senha inválidos"})
 }
 
 // Register godoc
@@ -897,14 +1112,14 @@ func GetByIdPlayer(c echo.Context) error {
 	id := c.Param("id")
 
 	// Execute the SQL query that selects the player with the informed ID
-	row := db.QueryRow("SELECT Name, City, Country, Birth, IdTeam, ID, COALESCE(Height, '0.00') as Height, COALESCE(Position, '') as Position FROM Player WHERE ID = ?", id)
+	row := db.QueryRow("SELECT Name, City, Country, Birth, IdTeam, ID, COALESCE(Height, '0.00') as Height, COALESCE(Position, '') as Position, COALESCE(ImagePath, '') as ImagePath, COALESCE(ShirtNumber, '0') as ShirtNumber FROM Player WHERE ID = ?", id)
 
 	// Create a variable of type Player to store the player data
 	var player structs.Player
 
 	// Read the result of the query and fill the player structure with the obtained data
 	var birthStr string
-	err = row.Scan(&player.Name, &player.City, &player.Country, &birthStr, &player.IdTeam, &player.ID, &player.Height, &player.Position)
+	err = row.Scan(&player.Name, &player.City, &player.Country, &birthStr, &player.IdTeam, &player.ID, &player.Height, &player.Position, &player.ImagePath, &player.ShirtNumber)
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
@@ -1185,7 +1400,7 @@ func GetPlayersByName(c echo.Context) error {
 	name := c.Param("name")
 
 	// Executa a consulta SQL que seleciona os players cujo nome contém o texto informado
-	rows, err := db.Query("SELECT Name, City, Country, Birth, IdTeam, ID, COALESCE(Height, '0.00') as Height, COALESCE(Position, '') as Position FROM Player WHERE name LIKE ?", "%"+name+"%")
+	rows, err := db.Query("SELECT Name, City, Country, Birth, IdTeam, ID, Height, COALESCE(Position, '') as Position, COALESCE(ImagePath, '') as ImagePath, COALESCE(ShirtNumber, '0') as ShirtNumber FROM Player WHERE name LIKE ?", "%"+name+"%")
 	if err != nil {
 		// Lida com o erro
 		return c.String(http.StatusInternalServerError, err.Error())
@@ -1201,7 +1416,7 @@ func GetPlayersByName(c echo.Context) error {
 
 		// Lê o resultado da consulta e preenche a estrutura do jogador com os dados obtidos
 		var birthStr string
-		err = rows.Scan(&player.Name, &player.City, &player.Country, &birthStr, &player.IdTeam, &player.ID, &player.Height, &player.Position)
+		err = rows.Scan(&player.Name, &player.City, &player.Country, &birthStr, &player.IdTeam, &player.ID, &player.Height, &player.Position, &player.ImagePath, &player.ShirtNumber)
 		if err != nil {
 			// Lida com o erro
 			return c.String(http.StatusInternalServerError, err.Error())
@@ -1298,18 +1513,21 @@ func InsertPlayer(c echo.Context) error {
 // @Produce  json
 // @Param id query int true "ID Player"
 // @Param name query string true "Player Name"
-// @Param idteam query int true "Id Team"
-// @Param city query string true "City"
-// @Param country query string true "Country"
-// @Param birth query string true "Birth" example="DD-MM-AAAA"
-// @Param height query string true "Height"
-// @Param position query string true "Position"
+// @Param idteam query int false "Id Team"
+// @Param city query string false "City"
+// @Param country query string false "Country"
+// @Param birth query string false "Birth" example="DD-MM-AAAA"
+// @Param height query string false "Height"
+// @Param position query string false "Position"
+// @Param position query string false "ImagePath"
+// @Param position query string false "ShirtNumber"
 // @Success 200 {object} structs.Player
 // @Router /api/v1/player/update [put]
 func UpdatePlayer(c echo.Context) error {
 	// Conecta ao banco de dados
 	db, err := db.ConnectDB()
 	if err != nil {
+		fmt.Println("Erro ao conectar ao banco de dados:", err)
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
 
@@ -1322,12 +1540,15 @@ func UpdatePlayer(c echo.Context) error {
 	birth := c.QueryParam("birth")
 	height := c.QueryParam("height")
 	position := c.QueryParam("position")
+	imagepath := c.QueryParam("imagepath")
+	shirtnumber := c.QueryParam("shirtnumber")
 
 	// Converte a string de data de nascimento para o tipo date
 	var birthDate time.Time
 	if birth != "" {
 		birthDate, err = time.Parse("02/01/2006", birth)
 		if err != nil {
+			fmt.Println("Erro ao converter a data de nascimento:", err)
 			return c.String(http.StatusInternalServerError, err.Error())
 		}
 	}
@@ -1336,8 +1557,9 @@ func UpdatePlayer(c echo.Context) error {
 	formattedBirthDate := birthDate.Format("2006-01-02")
 
 	// Executa a consulta SQL
-	result, err := db.Exec("UPDATE Player SET name = ?, city = ?, country = ?, birth = ?, idteam = ?, height = ?, position = ? WHERE id = ?", name, city, country, formattedBirthDate, idteam, height, position, id)
+	result, err := db.Exec("UPDATE Player SET name = ?, city = ?, country = ?, birth = ?, idteam = ?, height = ?, position = ?, imagepath = ?, shirtnumber = ? WHERE id = ?", name, city, country, formattedBirthDate, idteam, height, position, imagepath, shirtnumber, id)
 	if err != nil {
+		fmt.Println("Erro ao executar a consulta SQL:", err)
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
 
@@ -1347,6 +1569,7 @@ func UpdatePlayer(c echo.Context) error {
 	// Obtém o número de linhas afetadas
 	rows, err := result.RowsAffected()
 	if err != nil {
+		fmt.Println("Erro ao obter o número de linhas afetadas:", err)
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
 

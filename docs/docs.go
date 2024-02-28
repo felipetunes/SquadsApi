@@ -15,6 +15,186 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/v1/bet/getallbyuserid/{id}": {
+            "get": {
+                "description": "Get all bets by user ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Bets"
+                ],
+                "summary": "Get all bets by user ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/structs.Bet"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/bet/getbyid/{id}": {
+            "get": {
+                "description": "Get a bet by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Bets"
+                ],
+                "summary": "Get a bet by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bet ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/structs.Bet"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/bet/insert": {
+            "post": {
+                "description": "Insert a new bet",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Bets"
+                ],
+                "summary": "Insert a new bet",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "userid",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Match ID",
+                        "name": "matchid",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "number",
+                        "description": "Amount",
+                        "name": "amount",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Prediction",
+                        "name": "prediction",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/structs.Bet"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/bet/update": {
+            "put": {
+                "description": "Update a bet",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Bets"
+                ],
+                "summary": "Update a bet",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Bet ID",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "userid",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Match ID",
+                        "name": "matchid",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "number",
+                        "description": "Amount",
+                        "name": "amount",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Prediction",
+                        "name": "prediction",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/structs.Bet"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/championship/fetchbyid/{id}": {
             "get": {
                 "description": "Fetch a championship by ID",
@@ -539,43 +719,49 @@ const docTemplate = `{
                         "type": "integer",
                         "description": "Id Team",
                         "name": "idteam",
-                        "in": "query",
-                        "required": true
+                        "in": "query"
                     },
                     {
                         "type": "string",
                         "description": "City",
                         "name": "city",
-                        "in": "query",
-                        "required": true
+                        "in": "query"
                     },
                     {
                         "type": "string",
                         "description": "Country",
                         "name": "country",
-                        "in": "query",
-                        "required": true
+                        "in": "query"
                     },
                     {
                         "type": "string",
                         "description": "Birth",
                         "name": "birth",
-                        "in": "query",
-                        "required": true
+                        "in": "query"
                     },
                     {
                         "type": "string",
                         "description": "Height",
                         "name": "height",
-                        "in": "query",
-                        "required": true
+                        "in": "query"
                     },
                     {
                         "type": "string",
                         "description": "Position",
                         "name": "position",
-                        "in": "query",
-                        "required": true
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "ImagePath",
+                        "name": "position",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "ShirtNumber",
+                        "name": "position",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -983,6 +1169,34 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "structs.Bet": {
+            "type": "object",
+            "properties": {
+                "betAmount": {
+                    "description": "A quantidade de dinheiro apostada pelo usuário",
+                    "type": "number"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "matchId": {
+                    "description": "Identificador da partida na qual a aposta é feita",
+                    "type": "integer"
+                },
+                "possibleReturn": {
+                    "description": "O retorno possível se a aposta for bem-sucedida",
+                    "type": "number"
+                },
+                "selectedOutcome": {
+                    "description": "O resultado selecionado pelo usuário (\"HomeTeam\", \"VisitingTeam\" ou \"Draw\")",
+                    "type": "string"
+                },
+                "userId": {
+                    "description": "Identificador do usuário que fez a aposta",
+                    "type": "integer"
+                }
+            }
+        },
         "structs.Championship": {
             "type": "object",
             "properties": {
@@ -1085,7 +1299,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "height": {
-                    "type": "number"
+                    "type": "string"
                 },
                 "id": {
                     "type": "integer"
@@ -1093,11 +1307,17 @@ const docTemplate = `{
                 "idteam": {
                     "type": "integer"
                 },
+                "imagepath": {
+                    "type": "string"
+                },
                 "name": {
                     "type": "string"
                 },
                 "position": {
                     "type": "string"
+                },
+                "shirtnumber": {
+                    "type": "integer"
                 }
             }
         },

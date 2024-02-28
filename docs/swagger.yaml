@@ -1,4 +1,25 @@
 definitions:
+  structs.Bet:
+    properties:
+      betAmount:
+        description: A quantidade de dinheiro apostada pelo usuário
+        type: number
+      id:
+        type: integer
+      matchId:
+        description: Identificador da partida na qual a aposta é feita
+        type: integer
+      possibleReturn:
+        description: O retorno possível se a aposta for bem-sucedida
+        type: number
+      selectedOutcome:
+        description: O resultado selecionado pelo usuário ("HomeTeam", "VisitingTeam"
+          ou "Draw")
+        type: string
+      userId:
+        description: Identificador do usuário que fez a aposta
+        type: integer
+    type: object
   structs.Championship:
     properties:
       id:
@@ -66,15 +87,19 @@ definitions:
       country:
         type: string
       height:
-        type: number
+        type: string
       id:
         type: integer
       idteam:
         type: integer
+      imagepath:
+        type: string
       name:
         type: string
       position:
         type: string
+      shirtnumber:
+        type: integer
     type: object
   structs.Team:
     properties:
@@ -109,6 +134,127 @@ info:
     enter new teams and players, update existing information, and view details.
   title: Squads API
 paths:
+  /api/v1/bet/getallbyuserid/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get all bets by user ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/structs.Bet'
+            type: array
+      summary: Get all bets by user ID
+      tags:
+      - Bets
+  /api/v1/bet/getbyid/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get a bet by ID
+      parameters:
+      - description: Bet ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/structs.Bet'
+      summary: Get a bet by ID
+      tags:
+      - Bets
+  /api/v1/bet/insert:
+    post:
+      consumes:
+      - application/json
+      description: Insert a new bet
+      parameters:
+      - description: User ID
+        in: query
+        name: userid
+        required: true
+        type: integer
+      - description: Match ID
+        in: query
+        name: matchid
+        required: true
+        type: integer
+      - description: Amount
+        in: query
+        name: amount
+        required: true
+        type: number
+      - description: Prediction
+        in: query
+        name: prediction
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/structs.Bet'
+      summary: Insert a new bet
+      tags:
+      - Bets
+  /api/v1/bet/update:
+    put:
+      consumes:
+      - application/json
+      description: Update a bet
+      parameters:
+      - description: Bet ID
+        in: query
+        name: id
+        required: true
+        type: integer
+      - description: User ID
+        in: query
+        name: userid
+        required: true
+        type: integer
+      - description: Match ID
+        in: query
+        name: matchid
+        required: true
+        type: integer
+      - description: Amount
+        in: query
+        name: amount
+        required: true
+        type: number
+      - description: Prediction
+        in: query
+        name: prediction
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/structs.Bet'
+      summary: Update a bet
+      tags:
+      - Bets
   /api/v1/championship/fetchbyid/{id}:
     get:
       consumes:
@@ -452,32 +598,34 @@ paths:
       - description: Id Team
         in: query
         name: idteam
-        required: true
         type: integer
       - description: City
         in: query
         name: city
-        required: true
         type: string
       - description: Country
         in: query
         name: country
-        required: true
         type: string
       - description: Birth
         in: query
         name: birth
-        required: true
         type: string
       - description: Height
         in: query
         name: height
-        required: true
         type: string
       - description: Position
         in: query
         name: position
-        required: true
+        type: string
+      - description: ImagePath
+        in: query
+        name: position
+        type: string
+      - description: ShirtNumber
+        in: query
+        name: position
         type: string
       produces:
       - application/json
