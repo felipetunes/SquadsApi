@@ -54,6 +54,10 @@ The API has the following routes:
 - `POST /api/v1/live/insert`: Inserts a new live match.
 - `PUT /api/v1/live/update`: Updates an existing live match.
 
+## User Routes
+-`post/api/v1/user/login`: allows users to login
+-`post/api/v1/user/registring`: Registers a New User.
+
 To use this API, you can send an HTTP request to the desired route. For example, to get all teams, you can send a GET request to `/team/getall`.
 
 ## API Documentation
